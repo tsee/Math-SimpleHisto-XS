@@ -147,15 +147,15 @@ DESTROY(self)
 simple_histo_1d*
 clone(self)
     SV* self
-  PREINIT:
-    char* CLASS;
   CODE:
-    /* FIXME inheritance! Get the class this thing is blessed into! */
-    CLASS = "Math::SimpleHisto::XS";
+    if (!sv_isobject(self)) {
+      croak("Cannot call clone() on non-object");
+    }
+    const char* CLASS = sv_reftype(SvRV(self), TRUE);
     if ( sv_isobject(self) && (SvTYPE(SvRV(self)) == SVt_PVMG) ) {
       RETVAL = histo_clone(aTHX_ (simple_histo_1d*)SvIV((SV*)SvRV(self)), 0);
     } else {
-      croak( "Math::SimpleHisto::XS::clone() -- self is not a blessed SV reference" );
+      croak( "%s::clone() -- self is not a blessed SV reference", CLASS );
     }
   OUTPUT: RETVAL
 
@@ -163,15 +163,15 @@ clone(self)
 simple_histo_1d*
 new_alike(self)
     SV* self
-  PREINIT:
-    char* CLASS;
   CODE:
-    /* FIXME inheritance! Get the class this thing is blessed into! */
-    CLASS = "Math::SimpleHisto::XS";
+    if (!sv_isobject(self)) {
+      croak("Cannot call clone() on non-object");
+    }
+    const char* CLASS = sv_reftype(SvRV(self), TRUE);
     if ( sv_isobject(self) && (SvTYPE(SvRV(self)) == SVt_PVMG) ) {
       RETVAL = histo_clone(aTHX_ (simple_histo_1d*)SvIV((SV*)SvRV(self)), 1);
     } else {
-      croak( "Math::SimpleHisto::XS::new_alike() -- self is not a blessed SV reference" );
+      croak( "%s::new_alike() -- self is not a blessed SV reference", CLASS );
     }
   OUTPUT: RETVAL
 
