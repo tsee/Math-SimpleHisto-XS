@@ -4,7 +4,7 @@ use ExtUtils::MakeMaker;
 # the contents of the Makefile that is written.
 my $name = 'Math::SimpleHisto::XS';
 my $define = '';
-$define = '-Wall' if grep {/--debug/} @ARGV;
+$define = '-Wall -Wextra' if grep {/--debug/} @ARGV;
 
 WriteMakefile(
     NAME              => $name,
