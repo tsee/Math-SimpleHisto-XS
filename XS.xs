@@ -30,28 +30,29 @@ simple_histo_1d*
 histo_clone(pTHX_ simple_histo_1d* src, bool empty)
 {
   simple_histo_1d* clone;
+  double *data, *data_src;
 
+  data_src = src->data;
   Newx(clone, 1, simple_histo_1d);
 
   if (!empty) {
-    double *data, *data_src;
     unsigned int i;
     Newx(data, src->nbins, double);
-    data_src = src->data;
     for (i = 0; i < src->nbins; ++i)
       data[i] = data_src[i];
-    clone->data = data;
     clone->nfills = src->nfills;
     clone->overflow = src->overflow;
     clone->underflow = src->underflow;
     clone->total = src->total;
   }
   else {
+    Newxz(data, src->nbins, double); /* zero it all */
     clone->nfills = 0.;
     clone->overflow = 0.;
     clone->underflow = 0.;
     clone->total = 0.;
   }
+  clone->data = data;
 
   clone->nbins = src->nbins;
   clone->min = src->min;
@@ -155,6 +156,22 @@ clone(self)
       RETVAL = histo_clone(aTHX_ (simple_histo_1d*)SvIV((SV*)SvRV(self)), 0);
     } else {
       croak( "Math::SimpleHisto::XS::clone() -- self is not a blessed SV reference" );
+    }
+  OUTPUT: RETVAL
+
+
+simple_histo_1d*
+new_alike(self)
+    SV* self
+  PREINIT:
+    char* CLASS;
+  CODE:
+    /* FIXME inheritance! Get the class this thing is blessed into! */
+    CLASS = "Math::SimpleHisto::XS";
+    if ( sv_isobject(self) && (SvTYPE(SvRV(self)) == SVt_PVMG) ) {
+      RETVAL = histo_clone(aTHX_ (simple_histo_1d*)SvIV((SV*)SvRV(self)), 1);
+    } else {
+      croak( "Math::SimpleHisto::XS::new_alike() -- self is not a blessed SV reference" );
     }
   OUTPUT: RETVAL
 
