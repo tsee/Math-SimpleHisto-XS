@@ -137,11 +137,24 @@ Same as C<bin_centers> and C<bin_center> respectively, but
 for the upper boundary coordinate(s) of the bin(s). Note that
 this lower boundary is I<not> considered part of the bin.
 
-=head2 find_bin
+=head2 C<find_bin>
 
 C<<$hist->find_bin($x)>> returns the bin number of the bin
 in which the given coordinate falls. Returns undef if the
 coordinate is outside the histogram range.
+
+=head2 C<set_bin_content>
+
+C<<$hist->set_bin_content($ibin, $content)>> sets the content of a single bin.
+
+=head2 C<set_underflow>, C<set_overflow>
+
+C<<$hist->set_underflow($content)>> sets the content of the underflow bin.
+C<set_overflow> does the obvious.
+
+=head2 C<set_nfills>
+
+C<<$hist->set_nfills($n)>> sets the number of fills.
 
 =head1 SEE ALSO
 

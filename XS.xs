@@ -400,3 +400,35 @@ find_bin(self, x)
     }
     XPUSHu( (UV)(x/self->binsize) );
 
+
+void
+set_bin_content(self, ibin, content)
+    simple_histo_1d* self
+    unsigned int ibin
+    double content
+  PPCODE:
+    if (ibin >= self->nbins) {
+      croak("Histogram bin in access outside histogram size");
+    }
+    self->total += content - self->data[ibin];
+    self->data[ibin] = content;
+
+void set_underflow(self, content)
+    simple_histo_1d* self
+    double content
+  PPCODE:
+    self->underflow = content;
+
+void set_overflow(self, content)
+    simple_histo_1d* self
+    double content
+  PPCODE:
+    self->overflow = content;
+
+
+void set_nfills(self, nfills)
+    simple_histo_1d* self
+    unsigned int nfills
+  PPCODE:
+    self->nfills = nfills;
+
