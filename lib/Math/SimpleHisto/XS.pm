@@ -86,6 +86,15 @@ bin boundary is considered part of the next bin or overflow.
 
 Bin numbering starts at C<0>.
 
+=head2 EXPORT
+
+Nothing is exported by this module into the calling namespace by
+default. You can choose to export several constants:
+
+  INTEGRAL_CONSTANT
+
+Or you can use the import tag C<':all'> to import all.
+
 =head1 METHODS
 
 =head2 C<new>
@@ -184,6 +193,22 @@ C<set_overflow> does the obvious.
 =head2 C<set_nfills>
 
 C<<$hist->set_nfills($n)>> sets the number of fills.
+
+=head2 C<integral>
+
+Returns the integral over the histogram. I<Very limited at this point>. Usage:
+
+  my $integral = $hist->integral($from, $to, TYPE);
+
+Where C<$from> and C<$to> are the integration limits and the optional
+C<TYPE> is a constant indicating the method to use for integration.
+Currently, only C<INTEGRAL_CONSTANT> is implemented (and assumed as the
+default). This means that the bins will be treated as rectangles,
+but fractional bins are treated correctly.
+
+If the integration limits are outside the histogram boundaries,
+there is no warning, the integration is silently performed within
+the range of the histogram.
 
 =head1 SEE ALSO
 
