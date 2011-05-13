@@ -57,7 +57,7 @@ bin boundary is considered part of the next bin or overflow.
 
 =head1 METHODS
 
-=head2 new
+=head2 C<new>
 
 Constructor, takes named arguments. Mandatory parameters:
 
@@ -77,7 +77,7 @@ The number of bins in the histogram.
 
 =back
 
-=head2 fill
+=head2 C<fill>
 
 Fill data into the histogram. Takes one or two arguments. The first must be the
 coordinate that determines where data is to be added to the histogram.
@@ -87,6 +87,26 @@ to C<1>.
 If the coordinate is a reference to an array, it is assumed to contain many
 data points that are to be filled into the histogram. In this case, if the
 weight is used, it must also be a reference to an array of weights.
+
+=head2 C<min>, C<max>, C<nbins>, C<width>, C<binsize>
+
+Return static histogram attributes: minimum coordinate, maximum coordinate,
+number of bins, total width of the histogram, and the size of each bin.
+
+=head2 C<underflow>, C<overflow>
+
+Return the accumulated contents of the under- and overflow bins (which
+have the ranges from C<(-inf, min)> and C<[max, inf)> respectively).
+
+=head2 C<total>
+
+The total sum of weights that have been filled into the histogram,
+excluding under- and overflow.
+
+=head2 C<nfills>
+
+The total number of fill operations (currently including fills that fill into
+under- and overflow, but this is subject to change).
 
 =head1 SEE ALSO
 
