@@ -46,6 +46,7 @@ SCOPE: {
 
 # simple integral
 SCOPE: {
+  use Math::SimpleHisto::XS qw(:all);
   my $min = 11;
   my $max = 102;
   my $nbins = 39;
@@ -54,10 +55,10 @@ SCOPE: {
   $h->set_bin_content($_, $h->width/$nbins/$h->binsize) for 0..$nbins-1;
 
   is_approx($h->integral($h->min, $h->max), $h->width, 'Check total integral', 1e-6);
-  is_approx($h->integral($h->min, $h->max), $h->total*$h->binsize, 'Check total integral', 1e-6);
+  is_approx($h->integral($h->min, $h->max, INTEGRAL_CONSTANT), $h->total*$h->binsize, 'Check total integral', 1e-6);
   is_approx($h->integral($h->min+3.1, $h->max), $h->width-3.1, 'Check fractional start bin', 1e-6);
   is_approx($h->integral($h->min+3.1, $h->max-12.), $h->width-3.1-12., 'Check fractional start and end bin', 1e-6);
-  is_approx($h->integral($h->min+3, $h->max-12.), $h->width-3-12, 'Check fractional start and end bin', 1e-6);
+  is_approx($h->integral($h->min+3, $h->max-12., INTEGRAL_CONSTANT), $h->width-3-12, 'Check fractional start and end bin', 1e-6);
   is_approx($h->integral(50.1, 50.2), 0.1, 'Check fractional start and end bin', 1e-6);
 }
 
