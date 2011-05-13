@@ -5,6 +5,7 @@
 
 #include "ppport.h"
 
+#include "hist_constants.h"
 #include "const-c.inc"
 
 typedef struct {
@@ -440,4 +441,58 @@ set_nfills(self, nfills)
   PPCODE:
     self->nfills = nfills;
 
+
+double
+integral(self, from, to, type = 0)
+    simple_histo_1d* self
+    double from
+    double to
+    int type
+  PREINIT:
+    double* data;
+    unsigned int i, n;
+    double binsize;
+  CODE:
+    if (from > to) {
+      binsize = from; /* abuse as temp var */
+      from = to;
+      to = binsize;
+    }
+
+    data = self->data;
+    binsize = self->binsize;
+
+    if (to >= self->max)
+      to = self->max;
+    if (from < self->min)
+      from = self->min;
+
+    switch(type) {
+      case INTEGRAL_CONSTANT:
+        /* first (fractional) bin */
+        from = (from - self->min) / binsize;
+        i = (int)from;
+        from -= (double)i;
+        /* printf("First bin total content: %f\nCalc fractional: %f\nFirst bin index: %i\nfrom: %d\n", self->data[i], RETVAL, i, from); */
+
+        /* last (fractional) bin */
+        to = (to - self->min) / binsize;
+        n = (int)to;
+        to -= (double)n;
+
+        if (i == n) {
+          RETVAL = (to-from)*binsize;
+        }
+        else {
+          RETVAL = (data[i] * binsize) * (1.-from)
+                   + (data[n] * binsize) * to;
+          ++i;
+          for (; i < n; ++i)
+            RETVAL += data[i] * binsize;
+        }
+        break;
+      default:
+        croak("Invalid integration type");
+    };
+  OUTPUT: RETVAL
 

@@ -12,8 +12,9 @@ XSLoader::load('Math::SimpleHisto::XS', $VERSION);
 require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT_OK = qw(
-  INTEGRAL_FOO
+  INTEGRAL_CONSTANT
 );
+  #INTEGRAL_POL1
 our %EXPORT_TAGS = (
   'all' => \@EXPORT_OK,
 );

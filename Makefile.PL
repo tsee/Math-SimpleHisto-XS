@@ -24,7 +24,14 @@ if (eval "require ExtUtils::Constant; 1;") {
     or die "Could not open 'hist_constants.h' for reading: $!";
   my @constants;
   while (<$fh>) {
-    /^\s*\#\s*define\s+(\w+)\s+(^(?:[+-]?)?=\d|\.\d)\d*(?:\.\d*)?(?:[Ee](?:[+-]?\d+))?\s*$/ or next;
+    m{
+      ^ \s* \# \s* define \s+
+      (\w+) \s+
+      [+-]?
+      (?=\d|\.\d)
+      \d*(?:\.\d*)?
+      (?:[Ee][+-]?\d+)?
+    }x or next;
     push @constants, $1;
   }
 
