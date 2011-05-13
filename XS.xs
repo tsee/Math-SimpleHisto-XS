@@ -176,6 +176,31 @@ new_alike(self)
   OUTPUT: RETVAL
 
 
+void
+normalize(self, normalization = 1.)
+    simple_histo_1d* self
+    double normalization
+  PREINIT:
+    unsigned int i, n;
+    double* data;
+    double factor;
+  CODE:
+    if (normalization <= 0.) {
+      croak("Cannot normalize to %f", normalization);
+    }
+    if (self->total == 0.) {
+      croak("Cannot normalize histogram without data");
+    }
+    n = self->nbins;
+    data = self->data;
+    factor = normalization / self->total;
+    for (i = 0; i < n; ++i) {
+      data[i] *= factor;
+    }
+    self->total = normalization;
+    self->overflow *= factor;
+    self->underflow *= factor;
+
 
 void
 fill(self, ...)
