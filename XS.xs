@@ -13,10 +13,11 @@ typedef struct {
   double binsize;
 
   unsigned int nfills;
-  double* data;
   double overflow;
   double underflow;
   double total;
+
+  double* data;
 } simple_histo_1d;
 
 
