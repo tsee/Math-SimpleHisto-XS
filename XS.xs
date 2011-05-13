@@ -165,7 +165,7 @@ new_alike(self)
     SV* self
   CODE:
     if (!sv_isobject(self)) {
-      croak("Cannot call clone() on non-object");
+      croak("Cannot call new_alike() on non-object");
     }
     const char* CLASS = sv_reftype(SvRV(self), TRUE);
     if ( sv_isobject(self) && (SvTYPE(SvRV(self)) == SVt_PVMG) ) {
