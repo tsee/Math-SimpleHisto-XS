@@ -150,17 +150,17 @@ under- and overflow, but this is subject to change).
 
 =head2 C<all_bin_contents>, C<bin_content>
 
-C<<$hist->all_bin_contents()>> returns the contents of all histogram bins
+C<$hist-E<gt>all_bin_contents()> returns the contents of all histogram bins
 as a reference to an array. This is not the internal storage but a copy.
 
-C<<$hist->bin_content($ibin)>> returns the content of a single bin.
+C<$hist-E<gt>bin_content($ibin)> returns the content of a single bin.
 
 =head2 C<bin_centers>, C<bin_center>
 
-C<<$hist->bin_centers()>> returns a reference to an array containing
+C<$hist-E<gt>bin_centers()> returns a reference to an array containing
 the coordinates of all bin centers.
 
-C<<$hist->bin_center($ibin)>> returns the coordinate of the center
+C<$hist-E<gt>bin_center($ibin)> returns the coordinate of the center
 of a single bin.
 
 =head2 C<bin_lower_boundaries>, C<bin_lower_boundary>
@@ -177,22 +177,22 @@ this lower boundary is I<not> considered part of the bin.
 
 =head2 C<find_bin>
 
-C<<$hist->find_bin($x)>> returns the bin number of the bin
+C<$hist-E<gt>find_bin($x)> returns the bin number of the bin
 in which the given coordinate falls. Returns undef if the
 coordinate is outside the histogram range.
 
 =head2 C<set_bin_content>
 
-C<<$hist->set_bin_content($ibin, $content)>> sets the content of a single bin.
+C<$hist-E<gt>set_bin_content($ibin, $content)> sets the content of a single bin.
 
 =head2 C<set_underflow>, C<set_overflow>
 
-C<<$hist->set_underflow($content)>> sets the content of the underflow bin.
+C<$hist-E<gt>set_underflow($content)> sets the content of the underflow bin.
 C<set_overflow> does the obvious.
 
 =head2 C<set_nfills>
 
-C<<$hist->set_nfills($n)>> sets the number of fills.
+C<$hist-E<gt>set_nfills($n)> sets the number of fills.
 
 =head2 C<integral>
 
