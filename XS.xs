@@ -351,7 +351,7 @@ bin_content(self, ibin)
     simple_histo_1d* self
     unsigned int ibin
   CODE:
-    if (ibin < 0 || ibin >= self->nbins) {
+    if (/*ibin < 0 ||*/ ibin >= self->nbins) {
       croak("Bin outside histogram range");
     }
     RETVAL = (self->data)[ibin];
@@ -386,7 +386,7 @@ bin_center(self, ibin)
     simple_histo_1d* self
     unsigned int ibin
   CODE:
-    if (ibin < 0 || ibin >= self->nbins) {
+    if (/*ibin < 0 ||*/ ibin >= self->nbins) {
       croak("Bin outside histogram range");
     }
     RETVAL = self->min + ((double)ibin + 0.5) * self->binsize;
@@ -398,7 +398,7 @@ bin_lower_boundary(self, ibin)
     simple_histo_1d* self
     unsigned int ibin
   CODE:
-    if (ibin < 0 || ibin >= self->nbins) {
+    if (/*ibin < 0 ||*/ ibin >= self->nbins) {
       croak("Bin outside histogram range");
     }
     RETVAL = self->min + (double)ibin * self->binsize;
@@ -410,7 +410,7 @@ bin_upper_boundary(self, ibin)
     simple_histo_1d* self
     unsigned int ibin
   CODE:
-    if (ibin < 0 || ibin >= self->nbins) {
+    if (/*ibin < 0 ||*/ ibin >= self->nbins) {
       croak("Bin outside histogram range");
     }
     RETVAL = self->min + ((double)ibin + 1) * self->binsize;
