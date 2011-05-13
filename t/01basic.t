@@ -49,20 +49,6 @@ SCOPE: {
 #while (1) {  do {my $h = Math::SimpleHisto::XS->new(nbins => 100, min => 0, max => 1);};}
 #while (1) {  do {$h->fill([0.5], [1.]);};}
 
-#$h->fill($_*1e-4) for 1..1e4;
-#ok($h->mean() > 0.49 && $h->mean() < 0.51);
-
-#$h = Histo->new(xbins => 100, xmin => 0, xmax => 1);
-
-#use Math::Random::OO::Normal;
-#my $gauss = Math::Random::OO::Normal->new(0.5,0.1);
-#$h->fill($gauss->next) for 1..1e5;
-
-#warn $h->mean;
-#warn $h->mean_variance;
-#warn $h->uncertainty_on_mean;
-#warn $h->std_dev;
-
 sub is_approx {
   ok($_[0] > $_[1]-1e-9 && $_[0] < $_[1]+1e-9, (@_ > 2 ? ($_[2]) : ()))
     or diag("Got $_[0], expected $_[1]");
