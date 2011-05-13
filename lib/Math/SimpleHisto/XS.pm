@@ -230,6 +230,12 @@ Calculates the (weighted) mean of the histogram contents.
 Note that the result is not usually the same as if you calculated
 the mean of the input data directly due to the effect of the binning.
 
+=head2 C<normalize>
+
+Normalizes the histogram to the parameter of the
+C<$hist-E<gt>normalize($total)> call.
+Normalization defaults to C<1>.
+
 =head1 SEE ALSO
 
 L<SOOT> is a dynamic wrapper around the ROOT C++ library
