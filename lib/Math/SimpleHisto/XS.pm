@@ -55,6 +55,8 @@ submit a patch.
 The lower bin boundary is considered part of the bin. The upper
 bin boundary is considered part of the next bin or overflow.
 
+Bin numbering starts at C<0>.
+
 =head1 METHODS
 
 =head2 C<new>
@@ -107,6 +109,39 @@ excluding under- and overflow.
 
 The total number of fill operations (currently including fills that fill into
 under- and overflow, but this is subject to change).
+
+=head2 C<all_bin_contents>, C<bin_content>
+
+C<<$hist->all_bin_contents()>> returns the contents of all histogram bins
+as a reference to an array. This is not the internal storage but a copy.
+
+C<<$hist->bin_content($ibin)>> returns the content of a single bin.
+
+=head2 C<bin_centers>, C<bin_center>
+
+C<<$hist->bin_centers()>> returns a reference to an array containing
+the coordinates of all bin centers.
+
+C<<$hist->bin_center($ibin)>> returns the coordinate of the center
+of a single bin.
+
+=head2 C<bin_lower_boundaries>, C<bin_lower_boundary>
+
+Same as C<bin_centers> and C<bin_center> respectively, but
+for the lower boundary coordinate(s) of the bin(s). Note that
+this lower boundary is considered part of the bin.
+
+=head2 C<bin_upper_boundaries>, C<bin_upper_boundary>
+
+Same as C<bin_centers> and C<bin_center> respectively, but
+for the upper boundary coordinate(s) of the bin(s). Note that
+this lower boundary is I<not> considered part of the bin.
+
+=head2 find_bin
+
+C<<$hist->find_bin($x)>> returns the bin number of the bin
+in which the given coordinate falls. Returns undef if the
+coordinate is outside the histogram range.
 
 =head1 SEE ALSO
 
