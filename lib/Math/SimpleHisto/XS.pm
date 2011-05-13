@@ -95,7 +95,7 @@ default. You can choose to export several constants:
 
 Or you can use the import tag C<':all'> to import all.
 
-=head1 METHODS
+=head1 BASIC METHODS
 
 =head2 C<new>
 
@@ -155,6 +155,8 @@ excluding under- and overflow.
 The total number of fill operations (currently including fills that fill into
 under- and overflow, but this is subject to change).
 
+=head1 BIN ACCESS METHODS
+
 =head2 C<all_bin_contents>, C<bin_content>
 
 C<$hist-E<gt>all_bin_contents()> returns the contents of all histogram bins
@@ -188,6 +190,8 @@ C<$hist-E<gt>find_bin($x)> returns the bin number of the bin
 in which the given coordinate falls. Returns undef if the
 coordinate is outside the histogram range.
 
+=head1 SETTERS
+
 =head2 C<set_bin_content>
 
 C<$hist-E<gt>set_bin_content($ibin, $content)> sets the content of a single bin.
@@ -200,6 +204,8 @@ C<set_overflow> does the obvious.
 =head2 C<set_nfills>
 
 C<$hist-E<gt>set_nfills($n)> sets the number of fills.
+
+=head1 CALCULATIONS
 
 =head2 C<integral>
 
@@ -216,6 +222,13 @@ but fractional bins are treated correctly.
 If the integration limits are outside the histogram boundaries,
 there is no warning, the integration is silently performed within
 the range of the histogram.
+
+=head2 C<mean>
+
+Calculates the (weighted) mean of the histogram contents.
+
+Note that the result is not usually the same as if you calculated
+the mean of the input data directly due to the effect of the binning.
 
 =head1 SEE ALSO
 
