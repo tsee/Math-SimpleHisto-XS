@@ -25,10 +25,49 @@ typedef struct {
 } simple_histo_1d;
 
 
-void
-fill(simple_histo_1d* self, unsigned int n, double* x_in, double* w_in)
+STATIC
+simple_histo_1d*
+histo_clone(pTHX_ simple_histo_1d* src, bool empty)
 {
-  unsigned int i, nbins = self->nbins;
+  simple_histo_1d* clone;
+
+  Newx(clone, 1, simple_histo_1d);
+
+  if (!empty) {
+    double *data, *data_src;
+    unsigned int i;
+    Newx(data, src->nbins, double);
+    data_src = src->data;
+    for (i = 0; i < src->nbins; ++i)
+      data[i] = data_src[i];
+    clone->data = data;
+    clone->nfills = src->nfills;
+    clone->overflow = src->overflow;
+    clone->underflow = src->underflow;
+    clone->total = src->total;
+  }
+  else {
+    clone->nfills = 0.;
+    clone->overflow = 0.;
+    clone->underflow = 0.;
+    clone->total = 0.;
+  }
+
+  clone->nbins = src->nbins;
+  clone->min = src->min;
+  clone->max = src->max;
+  clone->width = src->width;
+  clone->binsize = src->binsize;
+
+  return clone;
+}
+
+
+STATIC
+void
+histo_fill(simple_histo_1d* self, unsigned int n, double* x_in, double* w_in)
+{
+  unsigned int i;
   double min = self->min, max = self->max, binsize = self->binsize, x, w;
   double *data = self->data;
 
@@ -104,6 +143,23 @@ DESTROY(self)
     Safefree( (void*)self );
 
 
+simple_histo_1d*
+clone(self)
+    SV* self
+  PREINIT:
+    char* CLASS;
+  CODE:
+    /* FIXME inheritance! Get the class this thing is blessed into! */
+    CLASS = "Math::SimpleHisto::XS";
+    if ( sv_isobject(self) && (SvTYPE(SvRV(self)) == SVt_PVMG) ) {
+      RETVAL = histo_clone(aTHX_ (simple_histo_1d*)SvIV((SV*)SvRV(self)), 0);
+    } else {
+      croak( "Math::SimpleHisto::XS::clone() -- self is not a blessed SV reference" );
+    }
+  OUTPUT: RETVAL
+
+
+
 void
 fill(self, ...)
     simple_histo_1d* self
@@ -126,12 +182,12 @@ fill(self, ...)
           }
           x[i] = SvNV(*sv);
         }
-        fill(self, n+1, x, NULL);
+        histo_fill(self, n+1, x, NULL);
         Safefree(x);
       }
       else {
         double x = SvNV(ST(1));
-        fill(self, 1, &x, NULL);
+        histo_fill(self, 1, &x, NULL);
       }
     }
     else if (items == 3) {
@@ -173,14 +229,14 @@ fill(self, ...)
           }
           w[i] = SvNV(*sv);
         }
-        fill(self, n+1, x, w);
+        histo_fill(self, n+1, x, w);
         Safefree(x);
         Safefree(w);
       }
       else {
         double x = SvNV(ST(1));
         double w = SvNV(ST(2));
-        fill(self, 1, &x, &w);
+        histo_fill(self, 1, &x, &w);
       }
     }
     else {
