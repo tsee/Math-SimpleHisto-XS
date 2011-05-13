@@ -569,3 +569,27 @@ integral(self, from, to, type = 0)
     };
   OUTPUT: RETVAL
 
+
+double
+mean(self)
+    simple_histo_1d* self
+  PREINIT:
+    double x, binsize;
+    double* data;
+    unsigned int i, n;
+  CODE:
+    if (self->total == 0) {
+      XSRETURN_UNDEF;
+    }
+    binsize = self->binsize;
+    data = self->data;
+    n = self->nbins;
+    x = self->min + 0.5*binsize;
+    RETVAL = 0.;
+    for (i = 0; i < n; ++i) {
+      RETVAL += data[i] * x;
+      x += binsize;
+    }
+    RETVAL /= self->total;
+  OUTPUT: RETVAL
+
