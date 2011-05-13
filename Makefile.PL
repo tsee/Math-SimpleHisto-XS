@@ -2,10 +2,12 @@ use 5.008001;
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
+my $name = 'Math::SimpleHisto::XS';
 WriteMakefile(
-    NAME              => 'Math::SimpleHisto::XS',
+    NAME              => $name,
     VERSION_FROM      => 'lib/Math/SimpleHisto/XS.pm', # finds $VERSION
     PREREQ_PM         => {
+      #'ExtUtils::Constant' => '0',
     }, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM  => 'lib/Math/SimpleHisto/XS.pm', # retrieve abstract from module
@@ -16,3 +18,19 @@ WriteMakefile(
 	# Un-comment this if you add C files to link with later:
     # OBJECT            => '$(O_FILES)', # link all the C files too
 );
+
+if (eval "require ExtUtils::Constant; 1;") {
+  open my $fh, '<', 'hist_constants.h'
+    or die "Could not open 'hist_constants.h' for reading: $!";
+  my @constants;
+  while (<$fh>) {
+    /^\s*\#\s*define\s+(\w+)\s+(^(?:[+-]?)?=\d|\.\d)\d*(?:\.\d*)?(?:[Ee](?:[+-]?\d+))?\s*$/ or next;
+    push @constants, $1;
+  }
+
+  ExtUtils::Constant::WriteConstants(
+    NAME => $name,
+    NAMES => \@constants,
+  );
+}
+

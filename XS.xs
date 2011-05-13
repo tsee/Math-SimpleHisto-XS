@@ -4,6 +4,8 @@
 
 #include "ppport.h"
 
+#include "const-c.inc"
+
 typedef struct {
   double min;
   double max;
@@ -52,6 +54,8 @@ fill(simple_histo_1d* self, unsigned int n, double* x_in, double* w_in)
 MODULE = Math::SimpleHisto::XS    PACKAGE = Math::SimpleHisto::XS
 
 REQUIRE: 2.2201
+
+INCLUDE: const-xs.inc
 
 simple_histo_1d*
 _new_histo(CLASS, nbins, min, max)

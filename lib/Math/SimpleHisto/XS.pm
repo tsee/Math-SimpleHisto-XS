@@ -9,6 +9,15 @@ our $VERSION = '0.01';
 require XSLoader;
 XSLoader::load('Math::SimpleHisto::XS', $VERSION);
 
+require Exporter;
+our @ISA = qw(Exporter);
+our @EXPORT_OK = qw(
+  INTEGRAL_FOO
+);
+our %EXPORT_TAGS = (
+  'all' => \@EXPORT_OK,
+);
+
 sub new {
   my $class = shift;
   my %opt = @_;
@@ -19,6 +28,25 @@ sub new {
 
   return $class->_new_histo(@opt{qw(nbins min max)})
 }
+
+# See ExtUtils::Constant
+sub AUTOLOAD {
+  # This AUTOLOAD is used to 'autoload' constants from the constant()
+  # XS function.
+
+  my $constname;
+  our $AUTOLOAD;
+  ($constname = $AUTOLOAD) =~ s/.*:://;
+  croak('&' . __PACKAGE__ . "::constant not defined") if $constname eq 'constant';
+  my ($error, $val) = constant($constname);
+  if ($error) { croak($error); }
+  {
+    no strict 'refs';
+    *$AUTOLOAD = sub { $val };
+  }
+  goto &$AUTOLOAD;
+}
+
 
 
 1;
