@@ -59,6 +59,12 @@ _new_histo(CLASS, nbins, min, max)
     double min;
     double max;
   CODE:
+    if (min == max) {
+      croak("histogram width cannot be 0");
+    }
+    else if (nbins == 0) {
+      croak("Cannot create histogram with 0 bins");
+    }
     Newx(RETVAL, 1, simple_histo_1d);
     if( RETVAL == NULL ){
       warn("unable to malloc simple_histo_1d");
@@ -68,9 +74,6 @@ _new_histo(CLASS, nbins, min, max)
       double tmp = min;
       min = max;
       max = tmp;
-    }
-    else if (min == max) {
-      croak("histogram width cannot be 0");
     }
     RETVAL->nbins = nbins;
     RETVAL->min = min;
