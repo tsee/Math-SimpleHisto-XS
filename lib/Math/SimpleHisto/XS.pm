@@ -100,6 +100,25 @@ sub new_from_dump {
   die "Must not be reached";
 }
 
+
+sub STORABLE_freeze {
+  my $self = shift;
+  my $cloning = shift;
+  my $serialized = $self->dump('simple');
+  return $serialized;
+}
+
+sub STORABLE_thaw {
+  my $self = shift;
+  my $cloning = shift;
+  my $serialized = shift;
+  my $new = ref($self)->new_from_dump('simple', $serialized);
+  $$self = $$new;
+  # Pesky DESTROY :P
+  bless($new => 'Math::SimpleHisto::XS::Doesntexist');
+  $new = undef;
+}
+
 1;
 __END__
 
