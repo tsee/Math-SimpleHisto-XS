@@ -9,18 +9,23 @@
 #include "const-c.inc"
 
 typedef struct {
+  /* parameters */
   double min;
   double max;
   unsigned int nbins;
 
+  /* derived */
   double width;
   double binsize;
 
+  /* content */
   unsigned int nfills;
   double overflow;
   double underflow;
+  /* derived content */
   double total;
 
+  /* main data store */
   double* data;
 } simple_histo_1d;
 
