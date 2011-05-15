@@ -400,7 +400,9 @@ set_all_bin_contents(self, new_data)
       if (elem == NULL) {
         croak("Shouldn't happen");
       }
+      self->total -= data[i];
       data[i] = SvNV(*elem);
+      self->total += data[i];
     }
 
 double
