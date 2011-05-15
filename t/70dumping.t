@@ -17,7 +17,7 @@ $h->set_underflow(1.);
 
 my $dump = $h->dump('simple');
 ok(defined($dump), 'Simple dump is defined');
-warn $dump;
+
 my $clone = Math::SimpleHisto::XS->new_from_dump('simple', $dump);
 isa_ok($clone, 'Math::SimpleHisto::XS');
 
