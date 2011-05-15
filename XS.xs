@@ -63,6 +63,28 @@ histo_clone(pTHX_ simple_histo_1d* src, bool empty)
   return clone;
 }
 
+STATIC
+SV*
+histo_data_av(pTHX_ simple_histo_1d* self) {
+  AV* av;
+  int i, n;
+  double* data;
+  SV* rv;
+
+  av = newAV();
+  rv = (SV*)newRV((SV*)av);
+  SvREFCNT_dec(av);
+
+  n = self->nbins;
+  av_fill(av, n-1);
+  data = self->data;
+  for (i = 0; i < n; ++i) {
+    av_store(av, i, newSVnv(data[i]));
+  }
+
+  return rv;
+}
+
 
 STATIC
 void
@@ -354,20 +376,9 @@ void
 all_bin_contents(self)
     simple_histo_1d* self
   PREINIT:
-    AV* av;
     SV* rv;
-    int i, n;
-    double* data;
   PPCODE:
-    av = newAV();
-    rv = (SV*)newRV((SV*)av);
-    SvREFCNT_dec(av);
-    n = self->nbins;
-    av_fill(av, n-1);
-    data = self->data;
-    for (i = 0; i < n; ++i) {
-      av_store(av, i, newSVnv(data[i]));
-    }
+    rv = histo_data_av(aTHX_ self);
     XPUSHs(sv_2mortal(rv));
 
 
