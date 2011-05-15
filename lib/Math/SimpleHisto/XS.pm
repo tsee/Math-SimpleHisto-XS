@@ -50,6 +50,55 @@ sub AUTOLOAD {
 }
 
 
+sub dump {
+  my $self = shift;
+  my $type = shift || 'simple';
+
+  my ($min, $max, $nbins, $nfills, $overflow, $underflow, $data_ary)
+    = $self->_get_info;
+
+  if ($type eq 'simple') {
+    return join(
+      ';',
+      $VERSION,
+      $min, $max, $nbins,
+      $nfills, $overflow, $underflow,
+      join('|', @$data_ary)
+    );
+  }
+  else {
+    croak("Unknown dump type: '$type'");
+  }
+  die "Must not be reached";
+}
+
+sub new_from_dump {
+  my $class = shift;
+  my $type = shift;
+  my $dump = shift;
+
+  croak("Need dump string") if not defined $dump;
+  if ($type eq 'simple') {
+    my ($version, @rest) = split /;/, $dump;
+    if (not $version) {
+      croak("Invalid 'simple' dump format");
+    }
+    elsif (@rest != 7) {
+      croak("Invalid 'simple' dump format, wrong number of elements in top level structure");
+    }
+    my $self = $class->new(min => $rest[0], max => $rest[1], nbins => $rest[2]);
+    $self->set_nfills($rest[3]);
+    $self->set_overflow($rest[4]);
+    $self->set_underflow($rest[5]);
+    my $values = [split /\|/, $rest[6]];
+    $self->set_all_bin_contents($values);
+    return $self;
+  }
+  else {
+    croak("Unknown dump type: '$type'");
+  }
+  die "Must not be reached";
+}
 
 1;
 __END__

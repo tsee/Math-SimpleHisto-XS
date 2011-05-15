@@ -679,3 +679,21 @@ mean(self)
 #    self->data = tmp;
 #    XPUSHs(sv_2mortal(outSv));
 
+
+void
+_get_info(self)
+    simple_histo_1d* self
+  PREINIT:
+    SV* data_ary;
+  PPCODE:
+    /* min, max, nbins, nfills, overflow, underflow, dataref */
+    EXTEND(SP, 7);
+    mPUSHn(self->min);
+    mPUSHn(self->max);
+    mPUSHu(self->nbins);
+    mPUSHu(self->nfills);
+    mPUSHn(self->overflow);
+    mPUSHn(self->underflow);
+    data_ary = histo_data_av(aTHX_ self);
+    XPUSHs(sv_2mortal(data_ary));
+
