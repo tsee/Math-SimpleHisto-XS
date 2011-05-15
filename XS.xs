@@ -381,6 +381,27 @@ all_bin_contents(self)
     rv = histo_data_av(aTHX_ self);
     XPUSHs(sv_2mortal(rv));
 
+void
+set_all_bin_contents(self, new_data)
+    simple_histo_1d* self
+    AV* new_data
+  PREINIT:
+    unsigned int n, i;
+    double* data;
+    SV** elem;
+  CODE:
+    n = self->nbins;
+    if ((unsigned int)(av_len(new_data)+1) != n) {
+      croak("Length of new data is %u, size of histogram is %u. That doesn't work.", (unsigned int)(av_len(new_data)+1), n);
+    }
+    data = self->data;
+    for (i = 0; i < n; ++i) {
+      elem = av_fetch(new_data, i, 0);
+      if (elem == NULL) {
+        croak("Shouldn't happen");
+      }
+      data[i] = SvNV(*elem);
+    }
 
 double
 bin_content(self, ibin)

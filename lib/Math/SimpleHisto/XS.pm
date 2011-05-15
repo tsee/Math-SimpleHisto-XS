@@ -15,6 +15,7 @@ our @EXPORT_OK = qw(
   INTEGRAL_CONSTANT
 );
   #INTEGRAL_POL1
+
 our %EXPORT_TAGS = (
   'all' => \@EXPORT_OK,
 );
@@ -204,6 +205,13 @@ C<set_overflow> does the obvious.
 =head2 C<set_nfills>
 
 C<$hist-E<gt>set_nfills($n)> sets the number of fills.
+
+=head2 C<set_all_bin_contents>
+
+Given a reference to an array containing numbers, sets the contents
+of each bin in the histogram to the number in the respective
+array element. Number of elements needs to match the number of bins
+in the histogram.
 
 =head1 CALCULATIONS
 
