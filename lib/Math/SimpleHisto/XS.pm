@@ -372,11 +372,54 @@ Normalizes the histogram to the parameter of the
 C<$hist-E<gt>normalize($total)> call.
 Normalization defaults to C<1>.
 
+=head1 SERIALIZATION
+
+This class defines serialization hooks for the L<Storable>
+module. Therefore, you can simply serialize objects using the
+usual
+
+  use Storable;
+  my $string = Storable::nfreeze($histogram);
+  # ... later ...
+  my $histo_object = Storable::thaw($string);
+
+=head2 C<dump>
+
+This module has fairly simple serialization methods. Just call the
+C<dump> method on an object of this class and provide the type of
+serialization desire. Currently valid serializations are
+C<simple>, C<JSON>, and C<YAML>. Case doesn't matter.
+
+For C<JSON> and C<YAML> support, you need to have the C<JSON>
+and C<YAML::Tiny> modules available respectively.
+
+The simple serialization format is a home grown text format that
+is subject to change, but in all likeliness, there will be some
+form of version migration code in the deserializer for backwards
+compatibility.
+
+All of the current serialization formats are text-based and thus
+portable and endianness-neutral.
+
+=head2 C<new_from_dump>
+
+Given the type of the dump (C<simple>, C<JSON>, or C<YAML>)
+and the actual dump string, creates a new histogram object
+from the contained data and returns it.
+
+Deserializing C<JSON> and C<YAML> dumps requires the
+L<JSON> or L<YAML::Tiny> modules respectively.
+
 =head1 SEE ALSO
 
 L<SOOT> is a dynamic wrapper around the ROOT C++ library
 which does histogramming and much more. Beware, it is experimental
 software.
+
+Serialization can make use of the L<JSON> or L<YAML::Tiny> modules.
+You may want to use the convenient L<Storable> module for transparent
+serialization of nested data structures containing objects
+of this class.
 
 =head1 AUTHOR
 
