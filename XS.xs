@@ -618,3 +618,30 @@ mean(self)
     RETVAL /= self->total;
   OUTPUT: RETVAL
 
+
+#void
+#binary_dump(self)
+#    simple_histo_1d* self
+#  PREINIT:
+#    char* out;
+#    SV* outSv;
+#    double* tmp;
+#    unsigned int size;
+#  PPCODE:
+#    size = sizeof(simple_histo_1d) + sizeof(double)*self->nbins;
+#    outSv = newSVpvs("");
+#    SvGROW(outSv, size+1);
+#    printf("   %u\n", SvLEN(outSv));
+#    out = SvPVX(outSv);
+#    SvLEN_set(outSv, size);
+#    printf("%u\n", SvLEN(outSv));
+#    /*Newx(out, size+1, char);*/
+#    tmp = self->data;
+#    self->data = NULL;
+#    Copy(self, out, sizeof(simple_histo_1d), char);
+#    Copy(tmp, out+sizeof(simple_histo_1d), sizeof(double)*self->nbins, char);
+#    out[size] = '\0';
+#    printf("%u\n", SvLEN(outSv));
+#    self->data = tmp;
+#    XPUSHs(sv_2mortal(outSv));
+
