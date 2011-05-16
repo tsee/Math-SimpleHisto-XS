@@ -230,13 +230,6 @@ Or you can use the import tag C<':all'> to import all.
 
 Constructor, takes named arguments. Mandatory parameters:
 
-=head2 C<clone>, C<new_alike>
-
-C<$hist-E<gt>clone()> clones the object entirely.
-
-C<$hist-E<gt>new_alike()> clones the parameters of the object,
-but resets the contents of the clone.
-
 =over 2
 
 =item min
@@ -252,6 +245,13 @@ The upper boundary of the histogram.
 The number of bins in the histogram.
 
 =back
+
+=head2 C<clone>, C<new_alike>
+
+C<$hist-E<gt>clone()> clones the object entirely.
+
+C<$hist-E<gt>new_alike()> clones the parameters of the object,
+but resets the contents of the clone.
 
 =head2 C<fill>
 
