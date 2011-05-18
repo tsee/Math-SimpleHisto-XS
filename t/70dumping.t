@@ -54,7 +54,7 @@ SKIP: {
 
 # YAML
 SKIP: {
-  if (eval "require YAML::Tiny; 1;") {
+  if (not eval "require YAML::Tiny; 1;") {
     skip 'Could not load YAML::Tiny', 12;
   }
   my $dump = $h->dump('yaml');
