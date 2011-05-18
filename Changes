@@ -9,3 +9,6 @@ Revision history for Perl extension Math::SimpleHisto::XS.
 0.03  Tue May 16 19:00:00 2011
   - Test fix (proper use of SKIP)
 
+0.04  Wed May 18  2:00:00 2011
+  - Test fix (proper use of eval, DOH)
+
