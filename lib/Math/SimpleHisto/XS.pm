@@ -416,6 +416,23 @@ usual
 Currently, this mechanism hardcodes the use of the C<simple>
 dump format. This is subject to change!
 
+The various serialization formats that this module supports (see
+the C<dump> documentation below) all have various pros and cons.
+For example, the C<native_pack> format is by far the fastest, but
+is not portable. The C<simple> format is a very simple-minded text
+format, but it is portable and performs well (comparable to the C<JSON>
+format when using C<JSON::XS>, other JSON modules will be B<MUCH>
+slower).
+Of all formats, the C<YAML> format is the slowest. See
+F<xt/bench_dumping.pl> for a simple benchmark script.
+
+None of the serialization formats currently supports compression, but
+the C<native_pack> format produces the smallest output at about half
+the size of the JSON output. The C<simple> format is close
+to C<JSON> for all but the smallest histograms, where it produces
+slightly smaller dumps.
+The C<YAML> produced is a bit bigger than the C<JSON>.
+
 =head2 C<dump>
 
 This module has fairly simple serialization methods. Just call the
