@@ -12,3 +12,10 @@ Revision history for Perl extension Math::SimpleHisto::XS.
 0.04  Wed May 18  2:00:00 2011
   - Test fix (proper use of eval, DOH)
 
+0.05  Thu May 18 18:30:00 2011
+  - More documentation on dumping/serializing
+  - Accepts any of JSON::XS, JSON::PP, JSON
+    as JSON implementations.
+  - Fast 'native_pack' serialization format
+  - Includes benchmark script for serialization
+
