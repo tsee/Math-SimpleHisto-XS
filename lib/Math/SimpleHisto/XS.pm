@@ -67,28 +67,22 @@ sub dump {
       join('|', @$data_ary)
     );
   }
-  elsif ($type eq 'json') {
-    require JSON;
-    my $json = JSON->new;
-    return $json->encode(
-      {
-        version => $VERSION,
-        min => $min, max => $max, nbins => $nbins,
-        nfills => $nfills, overflow => $overflow, underflow => $underflow,
-        data => $data_ary,
-      }
-    );
-  }
-  elsif ($type eq 'yaml') {
-    require YAML::Tiny;
-    return YAML::Tiny::Dump(
-      {
-        version => $VERSION,
-        min => $min, max => $max, nbins => $nbins,
-        nfills => $nfills, overflow => $overflow, underflow => $underflow,
-        data => $data_ary,
-      }
-    );
+  elsif ($type eq 'json' or $type eq 'yaml') {
+    my $struct = {
+      version => $VERSION,
+      min => $min, max => $max, nbins => $nbins,
+      nfills => $nfills, overflow => $overflow, underflow => $underflow,
+      data => $data_ary,
+    };
+    if ($type eq 'json') {
+      require JSON;
+      my $json = JSON->new;
+      return $json->encode($struct);
+    }
+    else { # type eq yaml
+      require YAML::Tiny;
+      return YAML::Tiny::Dump($struct);
+    }
   }
   else {
     croak("Unknown dump type: '$type'");
