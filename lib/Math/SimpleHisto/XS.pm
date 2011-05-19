@@ -21,6 +21,7 @@ our %EXPORT_TAGS = (
 );
 
 our @JSON_Modules = qw(JSON::XS JSON::PP JSON);
+our $JSON_Implementation;
 our $JSON_Encoder;
 our $JSON_Decoder;
 
@@ -28,6 +29,7 @@ foreach my $json_module (@JSON_Modules) {
   if (eval "require $json_module; 1;") {
     $JSON_Encoder = $json_module->can('encode_json');
     $JSON_Decoder = $json_module->can('decode_json');
+    $JSON_Implementation = $json_module;
     last if $JSON_Encoder and $JSON_Decoder;
   }
 }
