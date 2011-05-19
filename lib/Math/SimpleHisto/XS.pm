@@ -20,6 +20,18 @@ our %EXPORT_TAGS = (
   'all' => \@EXPORT_OK,
 );
 
+our @JSON_Modules = qw(JSON::XS JSON::PP JSON);
+our $JSON_Encoder;
+our $JSON_Decoder;
+
+foreach my $json_module (@JSON_Modules) {
+  if (eval "require $json_module; 1;") {
+    $JSON_Encoder = $json_module->can('encode_json');
+    $JSON_Decoder = $json_module->can('decode_json');
+    last if $JSON_Encoder and $JSON_Decoder;
+  }
+}
+
 sub new {
   my $class = shift;
   my %opt = @_;
@@ -75,9 +87,11 @@ sub dump {
       data => $data_ary,
     };
     if ($type eq 'json') {
-      require JSON;
-      my $json = JSON->new;
-      return $json->encode($struct);
+      if (not defined $JSON_Encoder) {
+        die "Cannot use JSON dump mode since no JSON handling module could be loaded: "
+            . join(', ', @JSON_Modules);
+      }
+      return $JSON_Encoder->($struct);
     }
     else { # type eq yaml
       require YAML::Tiny;
@@ -125,9 +139,11 @@ sub new_from_dump {
     };
   }
   elsif ($type eq 'json') {
-    require JSON;
-    my $json = JSON->new;
-    $hashref = $json->decode($dump);
+    if (not defined $JSON_Decoder) {
+      die "Cannot use JSON dump mode since no JSON handling module could be loaded: "
+          . join(', ', @JSON_Modules);
+    }
+    $hashref = $JSON_Decoder->($dump);
     $version = $hashref->{version};
     croak("Invalid JSON dump, not a hashref") if not ref($hashref) eq 'HASH';
   }
