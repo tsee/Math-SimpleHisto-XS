@@ -22,15 +22,17 @@ our %EXPORT_TAGS = (
 
 our @JSON_Modules = qw(JSON::XS JSON::PP JSON);
 our $JSON_Implementation;
-our $JSON_Encoder;
-our $JSON_Decoder;
+our $JSON;
 
 foreach my $json_module (@JSON_Modules) {
   if (eval "require $json_module; 1;") {
-    $JSON_Encoder = $json_module->can('encode_json');
-    $JSON_Decoder = $json_module->can('decode_json');
+    $JSON = $json_module->new;
+    $JSON->indent(0) if $JSON->can('indent');
+    $JSON->space_before(0) if $JSON->can('space_before');
+    $JSON->space_after(0) if $JSON->can('space_after');
+    $JSON->canonical(0) if $JSON->can('canonical');
     $JSON_Implementation = $json_module;
-    last if $JSON_Encoder and $JSON_Decoder;
+    last if $JSON;
   }
 }
 
@@ -89,11 +91,11 @@ sub dump {
       data => $data_ary,
     };
     if ($type eq 'json') {
-      if (not defined $JSON_Encoder) {
+      if (not defined $JSON) {
         die "Cannot use JSON dump mode since no JSON handling module could be loaded: "
             . join(', ', @JSON_Modules);
       }
-      return $JSON_Encoder->($struct);
+      return $JSON->encode($struct);
     }
     else { # type eq yaml
       require YAML::Tiny;
@@ -141,11 +143,11 @@ sub new_from_dump {
     };
   }
   elsif ($type eq 'json') {
-    if (not defined $JSON_Decoder) {
+    if (not defined $JSON) {
       die "Cannot use JSON dump mode since no JSON handling module could be loaded: "
           . join(', ', @JSON_Modules);
     }
-    $hashref = $JSON_Decoder->($dump);
+    $hashref = $JSON->decode($dump);
     $version = $hashref->{version};
     croak("Invalid JSON dump, not a hashref") if not ref($hashref) eq 'HASH';
   }
