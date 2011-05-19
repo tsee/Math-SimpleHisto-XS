@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 59;
+use Test::More tests => 71;
 BEGIN { use_ok('Math::SimpleHisto::XS') };
 
 use lib 't/lib', 'lib';
@@ -17,14 +17,10 @@ $h->set_overflow(12.);
 $h->set_underflow(1.);
 
 # simple dump
-SCOPE: {
-  my $dump = $h->dump('simple');
-  ok(defined($dump), 'Simple dump is defined');
+test_dump_undump($h, 'simple');
 
-  my $clone = Math::SimpleHisto::XS->new_from_dump('simple', $dump);
-  isa_ok($clone, 'Math::SimpleHisto::XS');
-  histo_eq($h, $clone, "Simple histo dump");
-}
+# native_pack
+test_dump_undump($h, 'native_pack');
 
 # Storable
 SKIP: {
@@ -44,12 +40,7 @@ SKIP: {
   if (not eval "require JSON; 1;") {
     skip 'Could not load JSON', 12;
   }
-  my $dump = $h->dump('json');
-  ok(defined($dump), 'JSON dump is defined');
-
-  my $clone = Math::SimpleHisto::XS->new_from_dump('json', $dump);
-  isa_ok($clone, 'Math::SimpleHisto::XS');
-  histo_eq($h, $clone, "JSON histo dump");
+  test_dump_undump($h, 'json');
 }
 
 # YAML
@@ -57,11 +48,18 @@ SKIP: {
   if (not eval "require YAML::Tiny; 1;") {
     skip 'Could not load YAML::Tiny', 12;
   }
-  my $dump = $h->dump('yaml');
-  ok(defined($dump), 'YAML dump is defined');
+  test_dump_undump($h, 'yaml');
+}
 
-  my $clone = Math::SimpleHisto::XS->new_from_dump('yaml', $dump);
+sub test_dump_undump {
+  my $histo = shift;
+  my $type = shift;
+
+  my $dump = $histo->dump($type);
+  ok(defined($dump), "'$type' dump is defined");
+
+  my $clone = Math::SimpleHisto::XS->new_from_dump($type, $dump);
   isa_ok($clone, 'Math::SimpleHisto::XS');
-  histo_eq($h, $clone, "YAML histo dump");
+  histo_eq($histo, $clone, "'$type' histo dump is same as original");
 }
 
