@@ -84,6 +84,15 @@ sub dump {
       return YAML::Tiny::Dump($struct);
     }
   }
+  elsif ($type eq 'native_pack') {
+    return pack(
+      'd3 I2 d2 d*',
+      $VERSION,
+      $min, $max, $nbins,
+      $nfills, $overflow, $underflow,
+      @$data_ary
+    );
+  }
   else {
     croak("Unknown dump type: '$type'");
   }
@@ -130,6 +139,13 @@ sub new_from_dump {
     }
     $hashref = $docs[0];
     $version = $hashref->{version};
+  }
+  elsif ($type eq 'native_pack') {
+    my @things = unpack('d3 I2 d2 d*', $dump);
+    $version = $things[0];
+    $hashref = {};
+    $hashref->{$_} = shift(@things) for qw(version min max nbins nfills overflow underflow);
+    $hashref->{data} = \@things;
   }
   else {
     croak("Unknown dump type: '$type'");
