@@ -411,32 +411,43 @@ usual
   # ... later ...
   my $histo_object = Storable::thaw($string);
 
+Currently, this mechanism hardcodes the use of the C<simple>
+dump format. This is subject to change!
+
 =head2 C<dump>
 
 This module has fairly simple serialization methods. Just call the
 C<dump> method on an object of this class and provide the type of
 serialization desire. Currently valid serializations are
-C<simple>, C<JSON>, and C<YAML>. Case doesn't matter.
+C<simple>, C<JSON>, C<YAML>, and C<native_pack>. Case doesn't matter.
 
-For C<JSON> and C<YAML> support, you need to have the C<JSON>
-and C<YAML::Tiny> modules available respectively.
+For C<YAML> support, you need to have the C<YAML::Tiny> module
+available. For C<JSON> support, you need any of C<JSON::XS>,
+C<JSON::PP>, or C<JSON>. The three modules are tried in order
+at I<compile> time. The chosen implementation can be
+polled by looking at the
+C<$Math::SimpleHisto::XS::JSON_Implementation> variable. It contains
+the module name. Setting this vairable has no effect.
 
 The simple serialization format is a home grown text format that
 is subject to change, but in all likeliness, there will be some
 form of version migration code in the deserializer for backwards
 compatibility.
 
-All of the current serialization formats are text-based and thus
-portable and endianness-neutral.
+All of the serialization formats B<except for C<native_pack>>
+are text-based and thus portable and endianness-neutral.
+
+C<native_pack> should not be used when the serialized data
+is transferred to another machine.
 
 =head2 C<new_from_dump>
 
-Given the type of the dump (C<simple>, C<JSON>, or C<YAML>)
-and the actual dump string, creates a new histogram object
-from the contained data and returns it.
+Given the type of the dump (C<simple>, C<JSON>, C<YAML>,
+C<native_pack>) and the actual dump string, creates a new
+histogram object from the contained data and returns it.
 
-Deserializing C<JSON> and C<YAML> dumps requires the
-L<JSON> or L<YAML::Tiny> modules respectively.
+Deserializing C<JSON> and C<YAML> dumps requires
+the respective support modules to be available. See above.
 
 =head1 SEE ALSO
 
@@ -444,7 +455,8 @@ L<SOOT> is a dynamic wrapper around the ROOT C++ library
 which does histogramming and much more. Beware, it is experimental
 software.
 
-Serialization can make use of the L<JSON> or L<YAML::Tiny> modules.
+Serialization can make use of the L<JSON::XS>, L<JSON::PP>,
+L<JSON> or L<YAML::Tiny> modules.
 You may want to use the convenient L<Storable> module for transparent
 serialization of nested data structures containing objects
 of this class.
