@@ -37,9 +37,12 @@ SKIP: {
 
 # JSON
 SKIP: {
-  if (not eval "require JSON; 1;") {
-    skip 'Could not load JSON', 12;
+  if (not defined $Math::SimpleHisto::XS::JSON_Decoder
+      or not defined $Math::SimpleHisto::XS::JSON_Encoder)
+  {
+    skip 'Could not load JSON support module', 12;
   }
+  diag("Using $Math::SimpleHisto::XS::JSON_Implementation for testing JSON support");
   test_dump_undump($h, 'json');
 }
 
