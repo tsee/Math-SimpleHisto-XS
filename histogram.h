@@ -154,7 +154,7 @@ histo_fill(simple_histo_1d* self, unsigned int n, double* x_in, double* w_in)
 
     self->total += w;
     if (bins == NULL) {
-      data[(int)(x/binsize)] += w;
+      data[(int)((x-min)/binsize)] += w;
     }
     else {
       data[histo_find_bin_nonconstant_internal(x, self->nbins, self->bins)] += w;
