@@ -109,7 +109,6 @@ simple_histo_1d*
 clone(self)
     SV* self
   CODE:
-    /* TODO nonconstant bins */
     if (!sv_isobject(self)) {
       croak("Cannot call clone() on non-object");
     }
@@ -126,7 +125,6 @@ simple_histo_1d*
 new_alike(self)
     SV* self
   CODE:
-    /* TODO nonconstant bins */
     if (!sv_isobject(self)) {
       croak("Cannot call new_alike() on non-object");
     }
@@ -168,7 +166,6 @@ void
 fill(self, ...)
     simple_histo_1d* self
   CODE:
-    /* TODO nonconstant bins */
     if (items == 2) {
       SV* const x_tmp = ST(1);
       SvGETMAGIC(x_tmp);
@@ -498,7 +495,6 @@ find_bin(self, x)
     simple_histo_1d* self
     double x
   CODE:
-    /* TODO optimize */
     if (x >= self->max || x < self->min) {
       XSRETURN_UNDEF;
     }
