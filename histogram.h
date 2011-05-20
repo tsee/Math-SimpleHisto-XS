@@ -92,63 +92,73 @@ histo_data_av(pTHX_ simple_histo_1d* self) {
   return rv;
 }
 
-
 STATIC
-void
-histo_fill(simple_histo_1d* self, unsigned int n, double* x_in, double* w_in)
+unsigned int
+histo_find_bin_nonconstant_internal(double x, unsigned int nbins, double* bins)
 {
-  /* TODO non-constant binsize */
-  unsigned int i;
-  double min = self->min, max = self->max, binsize = self->binsize, x, w;
-  double *data = self->data;
-
-  for (i = 0; i < n; ++i) {
-    self->nfills++;
-    x = x_in[i];
-    if (w_in == NULL)
-      w = 1;
-    else
-      w = w_in[i];
-    if (x >= max) {
-      self->overflow += w;
-      continue;
+  /* TODO optimize */
+  unsigned int imin = 0;
+  unsigned int imax = nbins;
+  unsigned int i = (unsigned int)(imax/2);
+  while (1) {
+    if (bins[i] >= x)
+      imax = i;
+    else {
+      imin = i + (bins[i+1] == x);
+      if (bins[i+1] >= x)
+        break;
     }
-    x -= min;
-    if (x < 0) {
-      self->underflow += w;
-      continue;
-    }
-    self->total += w;
-    data[(int)(x/binsize)] += w;
+    if (imin == imax)
+      break;
+    i = (unsigned int) ((imax+imin)/2);
   }
+  return imin;
 }
 
 STATIC
 unsigned int
 histo_find_bin(simple_histo_1d* self, double x)
 {
-  /* TODO optimize */
   if (self->bins == NULL) {
     return( (x-self->min) / self->binsize );
   }
   else {
-    unsigned int imin = 0;
-    unsigned int imax = self->nbins;
-    unsigned int i = (unsigned int)(imax/2);
-    double* bins = self->bins;
-    while (1) {
-      if (bins[i] >= x)
-        imax = i;
-      else {
-        imin = i + (bins[i+1] == x);
-        if (bins[i+1] >= x)
-          break;
-      }
-      if (imin == imax)
-        break;
-      i = (unsigned int) ((imax+imin)/2);
+    return histo_find_bin_nonconstant_internal(x, self->nbins, self->bins);
+  }
+}
+
+STATIC
+void
+histo_fill(simple_histo_1d* self, unsigned int n, double* x_in, double* w_in)
+{
+  unsigned int i;
+  double min = self->min, max = self->max, binsize = self->binsize, x, w;
+  double *data = self->data;
+  double *bins = self->bins;
+
+  for (i = 0; i < n; ++i) {
+    self->nfills++;
+    x = x_in[i];
+
+    if (w_in == NULL) w = 1;
+    else              w = w_in[i];
+
+    if (x >= max) {
+      self->overflow += w;
+      continue;
     }
-    return imin;
+    else if (x < min) {
+      self->underflow += w;
+      continue;
+    }
+
+    self->total += w;
+    if (bins == NULL) {
+      data[(int)(x/binsize)] += w;
+    }
+    else {
+      data[histo_find_bin_nonconstant_internal(x, self->nbins, self->bins)] += w;
+    }
   }
 }
 
