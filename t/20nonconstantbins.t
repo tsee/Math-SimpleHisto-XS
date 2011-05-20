@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 344;
+use Test::More tests => 357;
 BEGIN { use_ok('Math::SimpleHisto::XS') };
 
 use lib 't/lib', 'lib';
@@ -23,7 +23,20 @@ foreach my $i (0..$n-1) {
   is_approx($h->bin_center($i), 0.5*($bins->[$i]+$bins->[$i+1]), "bin center $i");
 }
 
+
 #diag(join(" ", @$bins));
+$h->fill([-1.2, 7.9, 1.1, 5.1, 20., 14.13, 81.]);
+is($h->nfills, 7, "nfills");
+is_approx($h->underflow, 2., "underflow");
+is_approx($h->overflow, 1., "overflow");
+my @expected_contents=(
+  1, 1, 0, 0, 1,
+  0, 0, 1, 0, 0
+);
+foreach (0..$#expected_contents) {
+  is_approx($h->bin_content($_), $expected_contents[$_], "Bin content $_");
+}
+
 is($h->find_bin($bins->[0]), 0, "find_bin min");
 is($h->find_bin($bins->[-1]), undef, "find_bin max");
 is($h->find_bin($bins->[-1]-1e-2), $n-1, "find_bin max-eps");
