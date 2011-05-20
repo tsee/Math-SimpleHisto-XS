@@ -294,6 +294,8 @@ Math::SimpleHisto::XS - Simple histogramming, but kinda fast
 
 =head1 DESCRIPTION
 
+B<FIXME DOCUMENT VARIABLE BIN SIZE HISTOGRAMS>
+
 This module implements simple 1D histograms with fixed bin size.
 The implementation is mostly in C with a thin Perl layer on top.
 
