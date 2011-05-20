@@ -597,7 +597,7 @@ double
 mean(self)
     simple_histo_1d* self
   PREINIT:
-    double x, binsize;
+    double x;
     double* data;
     unsigned int i, n;
   CODE:
@@ -608,8 +608,8 @@ mean(self)
     data = self->data;
     n = self->nbins;
     if (self->bins == NULL) {
+      double binsize = self->binsize;
       x = self->min + 0.5*binsize;
-      binsize = self->binsize;
       for (i = 0; i < n; ++i) {
         RETVAL += data[i] * x;
         x += binsize;
