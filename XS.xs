@@ -547,49 +547,80 @@ integral(self, from, to, type = 0)
     double* data;
     unsigned int i, n;
     double binsize;
+    bool invert = 0;
   CODE:
     /* TODO nonconstant bins */
     if (from > to) {
       binsize = from; /* abuse as temp var */
       from = to;
       to = binsize;
+      invert = 1;
     }
 
     data = self->data;
     binsize = self->binsize;
+
+    /* FIXME handle both to/from being off limits on the same side*/
 
     if (to >= self->max)
       to = self->max;
     if (from < self->min)
       from = self->min;
 
+    /*for (i = 1; i < self->nbins; ++i)
+      printf("%u: %f ", i, data[i]);
+    printf("\n");
+    */
+
     switch(type) {
       case INTEGRAL_CONSTANT:
-        /* first (fractional) bin */
-        from = (from - self->min) / binsize;
-        i = (int)from;
-        from -= (double)i;
-        /* printf("First bin total content: %f\nCalc fractional: %f\nFirst bin index: %i\nfrom: %d\n", self->data[i], RETVAL, i, from); */
+        if (self->bins == NULL) {
+          /* first (fractional) bin */
+          from = (from - self->min) / binsize;
+          i = (int)from;
+          from -= (double)i;
 
-        /* last (fractional) bin */
-        to = (to - self->min) / binsize;
-        n = (int)to;
-        to -= (double)n;
-
-        if (i == n) {
-          RETVAL = (to-from)*binsize;
+          /* last (fractional) bin */
+          to = (to - self->min) / binsize;
+          n = (int)to;
+          to -= (double)n;
+          if (i == n) {
+            RETVAL = (to-from) * data[i];
+          }
+          else {
+            RETVAL = data[i] * (1.-from)
+                     + data[n] * to;
+            ++i;
+            for (; i < n; ++i)
+              RETVAL += data[i];
+          }
         }
-        else {
-          RETVAL = (data[i] * binsize) * (1.-from)
-                   + (data[n] * binsize) * to;
-          ++i;
-          for (; i < n; ++i)
-            RETVAL += data[i] * binsize;
+        else { /* variable bin size */
+          double* bins = self->bins;
+          unsigned int nbins = self->nbins;
+
+          i = histo_find_bin_nonconstant_internal(from, nbins, bins);
+  printf("i=%u from=%f to=%f nbins=%u\n", i, from, to, nbins);
+          RETVAL = (bins[i+1]-from) * data[i]; /* distance from 'from' to upper boundary of bin times data in bin */
+
+          n = histo_find_bin_nonconstant_internal(to, nbins, bins);
+          if (i == n) {
+            RETVAL -= (bins[i+1]-to) * data[i];
+          }
+          else {
+            ++i;
+            for (; i < n; ++i) {
+              RETVAL += data[i] * (bins[i+1]-bins[i]);
+            }
+            RETVAL += data[n] * (bins[n+1]-to);
+          }
         }
         break;
       default:
         croak("Invalid integration type");
     };
+    if (invert)
+      RETVAL *= -1.;
   OUTPUT: RETVAL
 
 
