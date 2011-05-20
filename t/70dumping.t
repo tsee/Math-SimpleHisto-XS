@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 151;
+use Test::More tests => 153;
 BEGIN { use_ok('Math::SimpleHisto::XS') };
 
 use lib 't/lib', 'lib';
