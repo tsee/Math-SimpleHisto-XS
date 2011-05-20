@@ -46,6 +46,51 @@ _new_histo(CLASS, nbins, min, max)
     RETVAL->underflow = 0.;
     RETVAL->total = 0.;
     RETVAL->nfills = 0;
+    RETVAL->bins = NULL;
+    Newxz(RETVAL->data, (int)RETVAL->nbins, double);
+  OUTPUT:
+    RETVAL
+
+simple_histo_1d*
+_new_histo_bins(CLASS, bins)
+    char *CLASS
+    AV* bins;
+  PREINIT:
+    unsigned int nbins, i;
+    double* bins_ary;
+    SV** elem;
+  CODE:
+    nbins = av_len(bins); /* av_len is like $#{}, but bins has nbins+1 elements */
+    Newx(RETVAL, 1, simple_histo_1d);
+    if( RETVAL == NULL ){
+      warn("unable to malloc simple_histo_1d");
+      XSRETURN_UNDEF;
+    }
+
+    RETVAL->nbins = nbins;
+    Newx(bins_ary, nbins+1, double);
+    RETVAL->bins = bins_ary;
+
+    for (i = 0; i <= nbins; ++i) {
+      elem = av_fetch(bins, i, 0);
+      if (elem == NULL) {
+        croak("Shouldn't happen");
+      }
+      bins_ary[i] = SvNV(*elem);
+      if (i != 0 && bins_ary[i-1] >= bins_ary[i]) {
+        Safefree(bins_ary);
+        Safefree(RETVAL);
+        croak("Bin edge %u is higher than bin edge %u. Must be strictly monotonically increasing", i-1, i);
+      }
+    }
+    RETVAL->min = bins_ary[0];
+    RETVAL->max = bins_ary[nbins];
+    RETVAL->width = RETVAL->max - RETVAL->min;
+    RETVAL->binsize = 0.;
+    RETVAL->overflow = 0.;
+    RETVAL->underflow = 0.;
+    RETVAL->total = 0.;
+    RETVAL->nfills = 0;
     Newxz(RETVAL->data, (int)RETVAL->nbins, double);
   OUTPUT:
     RETVAL
@@ -56,13 +101,15 @@ DESTROY(self)
     simple_histo_1d* self
   CODE:
     Safefree( (void*)self->data );
+    if (self->bins != NULL)
+      Safefree(self->bins);
     Safefree( (void*)self );
-
 
 simple_histo_1d*
 clone(self)
     SV* self
   CODE:
+    /* TODO nonconstant bins */
     if (!sv_isobject(self)) {
       croak("Cannot call clone() on non-object");
     }
@@ -79,6 +126,7 @@ simple_histo_1d*
 new_alike(self)
     SV* self
   CODE:
+    /* TODO nonconstant bins */
     if (!sv_isobject(self)) {
       croak("Cannot call new_alike() on non-object");
     }
@@ -109,9 +157,8 @@ normalize(self, normalization = 1.)
     n = self->nbins;
     data = self->data;
     factor = normalization / self->total;
-    for (i = 0; i < n; ++i) {
+    for (i = 0; i < n; ++i)
       data[i] *= factor;
-    }
     self->total = normalization;
     self->overflow *= factor;
     self->underflow *= factor;
@@ -121,6 +168,7 @@ void
 fill(self, ...)
     simple_histo_1d* self
   CODE:
+    /* TODO nonconstant bins */
     if (items == 2) {
       SV* const x_tmp = ST(1);
       SvGETMAGIC(x_tmp);
@@ -317,18 +365,27 @@ bin_centers(self)
     AV* av;
     SV* rv;
     int i, n;
-    double x, binsize;
+    double x;
   PPCODE:
     av = newAV();
     rv = (SV*)newRV((SV*)av);
     SvREFCNT_dec(av);
     n = self->nbins;
     av_fill(av, n-1);
-    binsize = self->binsize;
-    x = self->min + 0.5*binsize;
-    for (i = 0; i < n; ++i) {
-      av_store(av, i, newSVnv(x));
-      x += binsize;
+    if (self->bins == NULL) {
+      double binsize = self->binsize;
+      x = self->min + 0.5*binsize;
+      for (i = 0; i < n; ++i) {
+        av_store(av, i, newSVnv(x));
+        x += binsize;
+      }
+    }
+    else {
+      double* bins = self->bins;
+      for (i = 0; i < n; ++i) {
+        x = 0.5*(bins[i] + bins[i+1]);
+        av_store(av, i, newSVnv(x));
+      }
     }
     XPUSHs(sv_2mortal(rv));
 
@@ -338,10 +395,12 @@ bin_center(self, ibin)
     simple_histo_1d* self
     unsigned int ibin
   CODE:
-    if (/*ibin < 0 ||*/ ibin >= self->nbins) {
+    if (/*ibin < 0 ||*/ ibin >= self->nbins)
       croak("Bin outside histogram range");
-    }
-    RETVAL = self->min + ((double)ibin + 0.5) * self->binsize;
+    if (self->bins == NULL)
+      RETVAL = self->min + ((double)ibin + 0.5) * self->binsize;
+    else
+      RETVAL = 0.5*(self->bins[ibin] + self->bins[ibin+1]);
   OUTPUT: RETVAL
 
 
@@ -350,10 +409,12 @@ bin_lower_boundary(self, ibin)
     simple_histo_1d* self
     unsigned int ibin
   CODE:
-    if (/*ibin < 0 ||*/ ibin >= self->nbins) {
+    if (/*ibin < 0 ||*/ ibin >= self->nbins)
       croak("Bin outside histogram range");
-    }
-    RETVAL = self->min + (double)ibin * self->binsize;
+    if (self->bins == NULL)
+      RETVAL = self->min + (double)ibin * self->binsize;
+    else
+      RETVAL = self->bins[ibin];
   OUTPUT: RETVAL
 
 
@@ -362,10 +423,12 @@ bin_upper_boundary(self, ibin)
     simple_histo_1d* self
     unsigned int ibin
   CODE:
-    if (/*ibin < 0 ||*/ ibin >= self->nbins) {
+    if (/*ibin < 0 ||*/ ibin >= self->nbins)
       croak("Bin outside histogram range");
-    }
-    RETVAL = self->min + ((double)ibin + 1) * self->binsize;
+    if (self->bins == NULL)
+      RETVAL = self->min + ((double)ibin + 1) * self->binsize;
+    else
+      RETVAL = self->bins[ibin+1];
   OUTPUT: RETVAL
 
 
@@ -376,18 +439,25 @@ bin_lower_boundaries(self)
     AV* av;
     SV* rv;
     int i, n;
-    double x, binsize;
   PPCODE:
     av = newAV();
     rv = (SV*)newRV((SV*)av);
     SvREFCNT_dec(av);
     n = self->nbins;
     av_fill(av, n-1);
-    binsize = self->binsize;
-    x = self->min;
-    for (i = 0; i < n; ++i) {
-      av_store(av, i, newSVnv(x));
-      x += binsize;
+    if (self->bins == NULL) {
+      double binsize = self->binsize;
+      double x = self->min;
+      for (i = 0; i < n; ++i) {
+        av_store(av, i, newSVnv(x));
+        x += binsize;
+      }
+    }
+    else {
+      double* bins = self->bins;
+      for (i = 0; i < n; ++i) {
+        av_store(av, i, newSVnv(bins[i]));
+      }
     }
     XPUSHs(sv_2mortal(rv));
 
@@ -406,11 +476,19 @@ bin_upper_boundaries(self)
     SvREFCNT_dec(av);
     n = self->nbins;
     av_fill(av, n-1);
-    binsize = self->binsize;
-    x = self->min;
-    for (i = 0; i < n; ++i) {
-      x += binsize;
-      av_store(av, i, newSVnv(x));
+    if (self->bins == NULL) {
+      binsize = self->binsize;
+      x = self->min;
+      for (i = 0; i < n; ++i) {
+        x += binsize;
+        av_store(av, i, newSVnv(x));
+      }
+    }
+    else {
+      double* bins = self->bins;
+      for (i = 0; i < n; ++i) {
+        av_store(av, i, newSVnv(bins[i+1]));
+      }
     }
     XPUSHs(sv_2mortal(rv));
 
@@ -420,16 +498,34 @@ find_bin(self, x)
     simple_histo_1d* self
     double x
   PREINIT:
+    unsigned int i, imin, imax;
+    double* bins;
     dTARG;
   PPCODE:
-    if (x >= self->max) {
+    /* TODO nonconstant bins */
+    if (x >= self->max || x < self->min) {
       XSRETURN_UNDEF;
     }
-    x -= self->min;
-    if (x < 0) {
-      XSRETURN_UNDEF;
+    if (self->bins == NULL) {
+      XPUSHu( (UV)( (x-self->min) / self->binsize) );
     }
-    XPUSHu( (UV)(x/self->binsize) );
+    else {
+      bins = self->bins;
+      imin = 0;
+      imax = self->nbins;
+      i = (unsigned int)(imax/2);
+      while (1) {
+        printf("i=%u imin=%u imax=%u bins[i]=%f x=%f\n", i, imin, imax, bins[i], x);
+        if (bins[i] >= x)
+          imin = i;
+        else
+          imax = i;
+        if (imin == imax)
+          break;
+        i = (unsigned int) ((imax+imin)/2);
+      }
+      XPUSHu( (UV)imin );
+    }
 
 
 void
@@ -478,6 +574,7 @@ integral(self, from, to, type = 0)
     unsigned int i, n;
     double binsize;
   CODE:
+    /* TODO nonconstant bins */
     if (from > to) {
       binsize = from; /* abuse as temp var */
       from = to;
@@ -530,6 +627,7 @@ mean(self)
     double* data;
     unsigned int i, n;
   CODE:
+    /* TODO nonconstant bins */
     if (self->total == 0) {
       XSRETURN_UNDEF;
     }
@@ -579,6 +677,7 @@ _get_info(self)
   PREINIT:
     SV* data_ary;
   PPCODE:
+    /* TODO nonconstant bins */
     /* min, max, nbins, nfills, overflow, underflow, dataref */
     EXTEND(SP, 7);
     mPUSHn(self->min);

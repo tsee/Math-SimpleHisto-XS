@@ -40,11 +40,22 @@ sub new {
   my $class = shift;
   my %opt = @_;
 
-  foreach (qw(min max nbins)) {
-    croak("Need parameter '$_'") if not defined $opt{$_};
+  if (defined $opt{bins}) {
+    my $bins = $opt{bins};
+    croak("Cannot combine the 'bins' parameter with other parameters") if keys %opt > 1;
+    croak("The 'bins' parameter needs to be a reference to an array of bins")
+      if not ref($bins)
+      or not ref($bins) eq 'ARRAY'
+      or not @$bins > 1;
+    return $class->_new_histo_bins($bins);
+  }
+  else {
+    foreach (qw(min max nbins)) {
+      croak("Need parameter '$_'") if not defined $opt{$_};
+    }
   }
 
-  return $class->_new_histo(@opt{qw(nbins min max)})
+  return $class->_new_histo(@opt{qw(nbins min max)});
 }
 
 # See ExtUtils::Constant

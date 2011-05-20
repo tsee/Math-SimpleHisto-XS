@@ -22,6 +22,8 @@ typedef struct {
 
   /* main data store */
   double* data;
+  /* Exists with nbins+1 elements if we do not have constant binsize */
+  double* bins;
 } simple_histo_1d;
 
 
