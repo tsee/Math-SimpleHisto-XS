@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 357;
+use Test::More tests => 358;
 BEGIN { use_ok('Math::SimpleHisto::XS') };
 
 use lib 't/lib', 'lib';
@@ -36,6 +36,7 @@ my @expected_contents=(
 foreach (0..$#expected_contents) {
   is_approx($h->bin_content($_), $expected_contents[$_], "Bin content $_");
 }
+is_approx($h->mean, 11.55, "mean");
 
 is($h->find_bin($bins->[0]), 0, "find_bin min");
 is($h->find_bin($bins->[-1]), undef, "find_bin max");

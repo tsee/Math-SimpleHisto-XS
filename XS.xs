@@ -601,18 +601,26 @@ mean(self)
     double* data;
     unsigned int i, n;
   CODE:
-    /* TODO nonconstant bins */
-    if (self->total == 0) {
+    if (self->total == 0)
       XSRETURN_UNDEF;
-    }
-    binsize = self->binsize;
+
+    RETVAL = 0.;
     data = self->data;
     n = self->nbins;
-    x = self->min + 0.5*binsize;
-    RETVAL = 0.;
-    for (i = 0; i < n; ++i) {
-      RETVAL += data[i] * x;
-      x += binsize;
+    if (self->bins == NULL) {
+      x = self->min + 0.5*binsize;
+      binsize = self->binsize;
+      for (i = 0; i < n; ++i) {
+        RETVAL += data[i] * x;
+        x += binsize;
+      }
+    }
+    else { /* non-constant binsize */
+      double* bins = self->bins;
+      for (i = 0; i < n; ++i) {
+        x = 0.5*(bins[i] + bins[i+1]);
+        RETVAL += data[i] * x;
+      }
     }
     RETVAL /= self->total;
   OUTPUT: RETVAL
