@@ -493,39 +493,17 @@ bin_upper_boundaries(self)
     XPUSHs(sv_2mortal(rv));
 
 
-void
+unsigned int
 find_bin(self, x)
     simple_histo_1d* self
     double x
-  PREINIT:
-    unsigned int i, imin, imax;
-    double* bins;
-    dTARG;
-  PPCODE:
-    /* TODO nonconstant bins */
+  CODE:
+    /* TODO optimize */
     if (x >= self->max || x < self->min) {
       XSRETURN_UNDEF;
     }
-    if (self->bins == NULL) {
-      XPUSHu( (UV)( (x-self->min) / self->binsize) );
-    }
-    else {
-      bins = self->bins;
-      imin = 0;
-      imax = self->nbins;
-      i = (unsigned int)(imax/2);
-      while (1) {
-        printf("i=%u imin=%u imax=%u bins[i]=%f x=%f\n", i, imin, imax, bins[i], x);
-        if (bins[i] >= x)
-          imin = i;
-        else
-          imax = i;
-        if (imin == imax)
-          break;
-        i = (unsigned int) ((imax+imin)/2);
-      }
-      XPUSHu( (UV)imin );
-    }
+    RETVAL = histo_find_bin(self, x);
+    OUTPUT: RETVAL
 
 
 void
