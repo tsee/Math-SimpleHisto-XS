@@ -72,24 +72,33 @@ histo_clone(pTHX_ simple_histo_1d* src, bool empty)
 
 STATIC
 SV*
-histo_data_av(pTHX_ simple_histo_1d* self) {
+histo_ary_to_AV_internal(pTHX_ unsigned int n, double* ary) {
   AV* av;
-  int i, n;
-  double* data;
+  unsigned int i;
   SV* rv;
 
   av = newAV();
   rv = (SV*)newRV((SV*)av);
   SvREFCNT_dec(av);
 
-  n = self->nbins;
   av_fill(av, n-1);
-  data = self->data;
   for (i = 0; i < n; ++i) {
-    av_store(av, i, newSVnv(data[i]));
+    av_store(av, (int)i, newSVnv(ary[i]));
   }
 
   return rv;
+}
+
+STATIC
+SV*
+histo_data_av(pTHX_ simple_histo_1d* self) {
+  return histo_ary_to_AV_internal(aTHX_ self->nbins, self->data);
+}
+
+STATIC
+SV*
+histo_bins_av(pTHX_ simple_histo_1d* self) {
+  return histo_ary_to_AV_internal(aTHX_ self->nbins+1, self->bins);
 }
 
 STATIC

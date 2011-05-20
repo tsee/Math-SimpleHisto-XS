@@ -29,6 +29,7 @@ sub histo_eq {
   is_approx($test->binsize, $ref->binsize, "binsize is the same ($name)");
 
   Test::More::is_deeply($test->all_bin_contents, $ref->all_bin_contents, "data is the same ($name)");
+  Test::More::is_deeply($test->bin_centers, $ref->bin_centers, "bin centers are the same ($name)");
 }
 
 

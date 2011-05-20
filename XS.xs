@@ -658,10 +658,10 @@ _get_info(self)
     simple_histo_1d* self
   PREINIT:
     SV* data_ary;
+    SV* bins_ary;
   PPCODE:
-    /* TODO nonconstant bins */
-    /* min, max, nbins, nfills, overflow, underflow, dataref */
-    EXTEND(SP, 7);
+    /* min, max, nbins, nfills, overflow, underflow, dataref, binsref*/
+    EXTEND(SP, 8);
     mPUSHn(self->min);
     mPUSHn(self->max);
     mPUSHu(self->nbins);
@@ -670,4 +670,9 @@ _get_info(self)
     mPUSHn(self->underflow);
     data_ary = histo_data_av(aTHX_ self);
     XPUSHs(sv_2mortal(data_ary));
+    if (self->bins == NULL)
+      bins_ary = &PL_sv_undef;
+    else
+      bins_ary = sv_2mortal(histo_bins_av(aTHX_ self));
+    XPUSHs(bins_ary);
 

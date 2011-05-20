@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Carp qw(croak);
 
-our $VERSION = '0.05'; # Committed to floating point version numbers!
+our $VERSION = '1.01'; # Committed to floating point version numbers!
 
 require XSLoader;
 XSLoader::load('Math::SimpleHisto::XS', $VERSION);
@@ -77,12 +77,14 @@ sub AUTOLOAD {
 }
 
 
+use constant _PACK_FLAG_VARIABLE_BINS => 0;
+
 sub dump {
   my $self = shift;
   my $type = shift;
   $type = lc($type);
 
-  my ($min, $max, $nbins, $nfills, $overflow, $underflow, $data_ary)
+  my ($min, $max, $nbins, $nfills, $overflow, $underflow, $data_ary, $bins_ary)
     = $self->_get_info;
 
   if ($type eq 'simple') {
@@ -91,7 +93,8 @@ sub dump {
       $VERSION,
       $min, $max, $nbins,
       $nfills, $overflow, $underflow,
-      join('|', @$data_ary)
+      join('|', @$data_ary),
+      (defined($bins_ary) ? join('|', @$bins_ary) : ''),
     );
   }
   elsif ($type eq 'json' or $type eq 'yaml') {
@@ -101,6 +104,8 @@ sub dump {
       nfills => $nfills, overflow => $overflow, underflow => $underflow,
       data => $data_ary,
     };
+    $struct->{bins} = $bins_ary if defined $bins_ary;
+
     if ($type eq 'json') {
       if (not defined $JSON) {
         die "Cannot use JSON dump mode since no JSON handling module could be loaded: "
@@ -114,18 +119,36 @@ sub dump {
     }
   }
   elsif ($type eq 'native_pack') {
+    my $flags = 0;
+    vec($flags, _PACK_FLAG_VARIABLE_BINS, 1) = $bins_ary?1:0;
+
     return pack(
-      'd3 I2 d2 d*',
+      'd3 V I2 d2 d*',
       $VERSION,
-      $min, $max, $nbins,
+      $min, $max,
+      $flags,
+      $nbins,
       $nfills, $overflow, $underflow,
-      @$data_ary
+      @$data_ary,
+      @{$bins_ary || []}
     );
   }
   else {
     croak("Unknown dump type: '$type'");
   }
   die "Must not be reached";
+}
+
+
+sub _check_version {
+  my $version = shift;
+  my $type = shift;
+  if (not $version) {
+    croak("Invalid '$type' dump format");
+  }
+  elsif ($VERSION-$version < -1.) {
+    croak("Dump was generated with an incompatible newer version ($version) of this module ($VERSION)");
+  }
 }
 
 sub new_from_dump {
@@ -139,11 +162,14 @@ sub new_from_dump {
   my $version;
   my $hashref;
   if ($type eq 'simple') {
-    ($version, my @rest) = split /;/, $dump;
-    if (not $version) {
-      croak("Invalid 'simple' dump format");
+    ($version, my @rest) = split /;/, $dump, -1;
+    my $nexpected = 9;
+
+    _check_version($version, 'simple');
+    if ($version <= 1.) { # no bins array in VERSION < 1
+      $nexpected--;
     }
-    elsif (@rest != 7) {
+    elsif (@rest != $nexpected-1) {
       croak("Invalid 'simple' dump format, wrong number of elements in top level structure");
     }
 
@@ -152,6 +178,9 @@ sub new_from_dump {
       nfills => $rest[3], overflow => $rest[4], underflow => $rest[5],
       data => [split /\|/, $rest[6]]
     };
+    if ($version >= 1. and $rest[7] ne '') {
+      $hashref->{bins} = [split /\|/, $rest[7]];
+    }
   }
   elsif ($type eq 'json') {
     if (not defined $JSON) {
@@ -160,6 +189,7 @@ sub new_from_dump {
     }
     $hashref = $JSON->decode($dump);
     $version = $hashref->{version};
+    _check_version($version, 'json');
     croak("Invalid JSON dump, not a hashref") if not ref($hashref) eq 'HASH';
   }
   elsif ($type eq 'yaml') {
@@ -170,28 +200,48 @@ sub new_from_dump {
     }
     $hashref = $docs[0];
     $version = $hashref->{version};
+    _check_version($version, 'yaml');
   }
   elsif ($type eq 'native_pack') {
-    my @things = unpack('d3 I2 d2 d*', $dump);
-    $version = $things[0];
-    $hashref = {};
-    $hashref->{$_} = shift(@things) for qw(version min max nbins nfills overflow underflow);
+    my $version = unpack('d', $dump);
+    _check_version($version, 'native_pack');
+    my $flags_support = $version >= 1.;
+    my $pack_str = $flags_support ? 'd3 V I2 d2 d*' : 'd3 I2 d2 d*';
+    my @things = unpack($pack_str, $dump);
+    $version = shift @things;
+    $hashref = {version => $version};
+
+    foreach (qw(min max),
+             ($flags_support ? ('flags') : ()),
+             qw(nbins nfills overflow underflow))
+    {
+      $hashref->{$_} = shift(@things);
+    }
+
+    if ($flags_support) {
+      my $flags = delete $hashref->{flags};
+      if (vec($flags, _PACK_FLAG_VARIABLE_BINS, 1)) {
+        $hashref->{bins} = [splice(@things, $hashref->{nbins})];
+      }
+    }
+
     $hashref->{data} = \@things;
   }
   else {
     croak("Unknown dump type: '$type'");
   }
 
-  if (not $version) {
-    croak("Invalid '$type' dump format");
+  my $self;
+  if (defined $hashref->{bins}) {
+    $self = $class->new(bins => $hashref->{bins});
   }
-  #elsif (... version incomptatibility ...) {}
-
-  my $self = $class->new(
-    min => $hashref->{min},
-    max => $hashref->{max},
-    nbins => $hashref->{nbins},
-  );
+  else {
+    $self = $class->new(
+      min   => $hashref->{min},
+      max   => $hashref->{max},
+      nbins => $hashref->{nbins},
+    );
+  }
 
   $self->set_nfills($hashref->{nfills});
   $self->set_overflow($hashref->{overflow});
