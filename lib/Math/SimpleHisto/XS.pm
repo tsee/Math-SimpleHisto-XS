@@ -384,7 +384,7 @@ If the coordinate is a reference to an array, it is assumed to contain many
 data points that are to be filled into the histogram. In this case, if the
 weight is used, it must also be a reference to an array of weights.
 
-=head2 C<min>, C<max>, C<nbins>, C<width>, C<binsize>
+=head2 C<min>, C<max>, C<nbins>, C<width>
 
 Return static histogram attributes: minimum coordinate, maximum coordinate,
 number of bins, total width of the histogram, and the size of each bin.
@@ -405,6 +405,16 @@ The total number of fill operations (currently including fills that fill into
 under- and overflow, but this is subject to change).
 
 =head1 BIN ACCESS METHODS
+
+=head2 C<binsize>
+
+Returns the size of a bin. For histograms with variable width bin sizes,
+the size of the bin with the provided index is returned (defaults to the
+first bin). Example:
+
+  $hist->binsize(12);
+
+Returns the size of the 13th bin.
 
 =head2 C<all_bin_contents>, C<bin_content>
 
