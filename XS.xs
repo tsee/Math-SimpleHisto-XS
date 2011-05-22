@@ -13,6 +13,15 @@
     croak("Bin %u outside histogram range (highest bin index is %u", i, self->nbins); \
   } } STMT_END
 
+#define HS_CLONE_GET_CLASS(classname, src, where) STMT_START {                        \
+  if (!sv_isobject(src))                                                              \
+    croak("Cannot call ##where##() on non-object");                                   \
+  classname = sv_reftype(SvRV(src), TRUE);                                            \
+  if ( !sv_isobject(src) || (SvTYPE(SvRV(src)) != SVt_PVMG) )                         \
+    croak( "%s::##where##() -- self is not a blessed SV reference", classname);       \
+  } STMT_END
+
+
 MODULE = Math::SimpleHisto::XS    PACKAGE = Math::SimpleHisto::XS
 
 REQUIRE: 2.2201
@@ -113,32 +122,24 @@ DESTROY(self)
 simple_histo_1d*
 clone(self)
     SV* self
+  PREINIT:
+    char* CLASS;
+  INIT:
+    HS_CLONE_GET_CLASS(CLASS, self, clone);
   CODE:
-    if (!sv_isobject(self)) {
-      croak("Cannot call clone() on non-object");
-    }
-    const char* CLASS = sv_reftype(SvRV(self), TRUE);
-    if ( sv_isobject(self) && (SvTYPE(SvRV(self)) == SVt_PVMG) ) {
-      RETVAL = histo_clone(aTHX_ (simple_histo_1d*)SvIV((SV*)SvRV(self)), 0);
-    } else {
-      croak( "%s::clone() -- self is not a blessed SV reference", CLASS );
-    }
+    RETVAL = histo_clone(aTHX_ (simple_histo_1d*)SvIV((SV*)SvRV(self)), 0);
   OUTPUT: RETVAL
 
 
 simple_histo_1d*
 new_alike(self)
     SV* self
+  PREINIT:
+    char* CLASS;
+  INIT:
+    HS_CLONE_GET_CLASS(CLASS, self, new_alike);
   CODE:
-    if (!sv_isobject(self)) {
-      croak("Cannot call new_alike() on non-object");
-    }
-    const char* CLASS = sv_reftype(SvRV(self), TRUE);
-    if ( sv_isobject(self) && (SvTYPE(SvRV(self)) == SVt_PVMG) ) {
-      RETVAL = histo_clone(aTHX_ (simple_histo_1d*)SvIV((SV*)SvRV(self)), 1);
-    } else {
-      croak( "%s::new_alike() -- self is not a blessed SV reference", CLASS );
-    }
+    RETVAL = histo_clone(aTHX_ (simple_histo_1d*)SvIV((SV*)SvRV(self)), 1);
   OUTPUT: RETVAL
 
 
