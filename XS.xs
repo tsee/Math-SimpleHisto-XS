@@ -713,3 +713,14 @@ _get_info(self)
       bins_ary = sv_2mortal(histo_bins_av(aTHX_ self));
     XPUSHs(bins_ary);
 
+
+simple_histo_1d*
+cumulative(self)
+    simple_histo_1d* self
+  PREINIT:
+    char* CLASS;
+  INIT:
+    HS_CLONE_GET_CLASS(CLASS, self, cumulative);
+  CODE:
+    RETVAL = histo_cumulative(aTHX_ self);
+  OUTPUT: RETVAL

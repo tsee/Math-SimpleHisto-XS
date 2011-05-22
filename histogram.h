@@ -228,4 +228,27 @@ histo_fill(simple_histo_1d* self, unsigned int n, double* x_in, double* w_in)
   }
 }
 
+STATIC
+simple_histo_1d*
+histo_cumulative(pTHX_ simple_histo_1d* src)
+{
+  unsigned int i, nbins;
+  simple_histo_1d* cum;
+  double* cum_data;
+  double total;
+
+  nbins = src->nbins;
+  cum = histo_clone(aTHX_ src, 0);
+  cum_data = cum->data;
+  total = cum_data[0];
+
+  for (i = 1; i < nbins; ++i) {
+    cum_data[i] += cum_data[i-1];
+    total += cum_data[i];
+  }
+  cum->total = total;
+
+  return cum;
+}
+
 #endif
