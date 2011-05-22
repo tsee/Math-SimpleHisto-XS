@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 31;
+use Test::More tests => 39;
 BEGIN { use_ok('Math::SimpleHisto::XS') };
 
 use lib 't/lib', 'lib';
@@ -39,7 +39,7 @@ SCOPE: {
   is_approx($hs->integral(-100, 100), 1000, 'Full integral');
   is_approx($hs->integral(100, -100), -1000, 'Full integral inverted');
   is_approx($hs->integral(3.25, 100), 500, 'Fractional integral');
-  is_approx($hs->integral(-.1, 3.25), 500), 'Fractional integral 2';
+  is_approx($hs->integral(-.1, 3.25), 500, 'Fractional integral 2');
 }
 
 
@@ -50,15 +50,20 @@ SCOPE: {
   $h->set_bin_content(0, 2);
   $h->set_bin_content(1, 4);
   $h->set_bin_content(2, 6);
-  $h->set_bin_content(2, 75);
+  $h->set_bin_content(3, 75);
 
   my $h2 = $h->clone;
   for my $ht ($h, $h2) {
-    is_approx($ht->integral($h->min, $h->max), $h->width, 'Check total integral', 1e-6);
-    is_approx($ht->integral($h->min, $h->max, INTEGRAL_CONSTANT), $h->total*$h->binsize, 'Check total integral', 1e-6);
-    is_approx($ht->integral($h->min+3.1, $h->max), $h->width-3.1, 'Check fractional start bin', 1e-6);
-    is_approx($ht->integral($h->min+3.1, $h->max-12.), $h->width-3.1-12., 'Check fractional start and end bin', 1e-6);
-    is_approx($ht->integral($h->min+3, $h->max-12., INTEGRAL_CONSTANT), $h->width-3-12, 'Check fractional start and end bin', 1e-6);
-    is_approx($ht->integral(50.1, 50.2), 0.1, 'Check fractional start and end bin', 1e-6);
+    is_approx($ht->integral($ht->min, $ht->max), $ht->total, 'Check total integral (variable bins)', 1e-6);
+    is_approx($ht->integral($ht->bin_center(0), $ht->max), $ht->total-$ht->bin_content(0)/2., 'Check fractional integral (variable bins)', 1e-6);
+    is_approx($ht->integral($ht->bin_center(0), $ht->bin_upper_boundary(2)-1e-9), $ht->total-$ht->bin_content(0)/2.-$ht->bin_content(3), 'Check fractional integral 2 (variable bins)', 1e-6);
+    is_approx($ht->integral($ht->bin_center(0), $ht->bin_upper_boundary(2)), $ht->total-$ht->bin_content(0)/2.-$ht->bin_content(3), 'Check fractional integral 3 (variable bins)', 1e-6);
+    is_approx($ht->integral($ht->bin_center(0), $ht->bin_upper_boundary(2)+1e-9), $ht->total-$ht->bin_content(0)/2.-$ht->bin_content(3), 'Check fractional integral 4 (variable bins)', 1e-6);
+    is_approx($ht->integral($ht->bin_center(0), $ht->bin_center(2)), $ht->total-$ht->bin_content(0)/2.-$ht->bin_content(3)-$ht->bin_content(2)/2, 'Check fractional integral 5 (variable bins)', 1e-6);
+    
+    is_approx($ht->integral($ht->bin_lower_boundary(1), $ht->bin_upper_boundary(1)), $ht->bin_content(1), 'Single full bin (variable bins)', 1e-6);
+    is_approx($ht->integral($ht->bin_lower_boundary(1)-1e-9, $ht->bin_upper_boundary(1)+1e-9), $ht->bin_content(1), 'Single full bin extended (variable bins)', 1e-6);
+    is_approx($ht->integral($ht->bin_lower_boundary(1)+1e-9, $ht->bin_upper_boundary(1)-1e-9), $ht->bin_content(1), 'Single full bin contracted (variable bins)', 1e-6);
+    is_approx($ht->integral($ht->bin_lower_boundary(3)+1e-9, $ht->bin_center(3)), $ht->bin_content(3)/2, 'Single half bin contracted (variable bins)', 1e-6);
   }
 }
