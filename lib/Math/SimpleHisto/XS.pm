@@ -502,6 +502,17 @@ Normalizes the histogram to the parameter of the
 C<$hist-E<gt>normalize($total)> call.
 Normalization defaults to C<1>.
 
+=head2 C<cumulative>
+
+Calculates the cumulative histogram of the histogram and returns
+it as a B<new> histogram object.
+
+The cumulative (if done in Perl) is:
+
+  for my $i (0..$n) {
+    $content[$i] = sum(map $original_content[$_], 0..$i);
+  }
+
 =head1 SERIALIZATION
 
 This class defines serialization hooks for the L<Storable>

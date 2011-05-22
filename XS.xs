@@ -15,10 +15,10 @@
 
 #define HS_CLONE_GET_CLASS(classname, src, where) STMT_START {                        \
   if (!sv_isobject(src))                                                              \
-    croak("Cannot call ##where##() on non-object");                                   \
+    croak("Cannot call " #where "() on non-object");                                  \
   classname = sv_reftype(SvRV(src), TRUE);                                            \
   if ( !sv_isobject(src) || (SvTYPE(SvRV(src)) != SVt_PVMG) )                         \
-    croak( "%s::##where##() -- self is not a blessed SV reference", classname);       \
+    croak( "%s::" #where "() -- self is not a blessed SV reference", classname);      \
   } STMT_END
 
 
@@ -123,7 +123,7 @@ simple_histo_1d*
 clone(self)
     SV* self
   PREINIT:
-    char* CLASS;
+    const char* CLASS;
   INIT:
     HS_CLONE_GET_CLASS(CLASS, self, clone);
   CODE:
@@ -135,7 +135,7 @@ simple_histo_1d*
 new_alike(self)
     SV* self
   PREINIT:
-    char* CLASS;
+    const char* CLASS;
   INIT:
     HS_CLONE_GET_CLASS(CLASS, self, new_alike);
   CODE:
@@ -716,11 +716,12 @@ _get_info(self)
 
 simple_histo_1d*
 cumulative(self)
-    simple_histo_1d* self
+    SV* self
   PREINIT:
-    char* CLASS;
+    const char* CLASS;
   INIT:
     HS_CLONE_GET_CLASS(CLASS, self, cumulative);
   CODE:
-    RETVAL = histo_cumulative(aTHX_ self);
+    RETVAL = histo_cumulative(aTHX_ (simple_histo_1d*)SvIV((SV*)SvRV(self)));
   OUTPUT: RETVAL
+
