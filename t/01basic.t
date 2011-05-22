@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 92;
+use Test::More tests => 98;
 BEGIN { use_ok('Math::SimpleHisto::XS') };
 
 use lib 't/lib', 'lib';
@@ -11,6 +11,13 @@ isa_ok($h, 'Math::SimpleHisto::XS');
 
 $h->fill(0.11, 12.4);
 pass("Alive");
+
+is($h->binsize, 0.1, "binsize default");
+is($h->binsize(0), 0.1, "binsize(0)");
+is($h->binsize(2), 0.1, "binsize(2)");
+is($h->binsize(5), 0.1, "binsize(5)");
+ok(!eval{$h->binsize(-1); 1}, "binsize(-1) fails");
+ok(!eval{$h->binsize(100); 1}, "binsize(100) fails");
 
 my $data = $h->all_bin_contents;
 ok(ref($data) && ref($data) eq 'ARRAY', "got ary ref");
