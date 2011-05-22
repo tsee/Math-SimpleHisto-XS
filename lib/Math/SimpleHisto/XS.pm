@@ -294,10 +294,9 @@ Math::SimpleHisto::XS - Simple histogramming, but kinda fast
 
 =head1 DESCRIPTION
 
-B<FIXME DOCUMENT VARIABLE BIN SIZE HISTOGRAMS>
-
-This module implements simple 1D histograms with fixed bin size.
-The implementation is mostly in C with a thin Perl layer on top.
+This module implements simple 1D histograms with fixed or
+variable bin size. The implementation is mostly in C with a
+thin Perl layer on top.
 
 If this module isn't powerful enough for your histogramming needs,
 have a look at the powerful-but-experimental L<SOOT> module or
@@ -311,17 +310,30 @@ Bin numbering starts at C<0>.
 =head2 EXPORT
 
 Nothing is exported by this module into the calling namespace by
-default. You can choose to export several constants:
+default. You can choose to export the following constants:
 
   INTEGRAL_CONSTANT
 
 Or you can use the import tag C<':all'> to import all.
 
+=head1 FIXED- VS. VARIABLE-SIZE BINS
+
+This module implements histograms with both fixed and variable
+bin sizes. Fixed bin size means that all bins in the histogram
+have the same size. Implementation-wise, this means that finding
+a bin in the histogram, for example for filling,
+takes constant time (O(1)).
+
+For variable width histograms, each bin can have a different size.
+Finding a bin is implemented with a binary search, which has
+logarithmic run-time complexity in the number of bins O(log n).
+
 =head1 BASIC METHODS
 
 =head2 C<new>
 
-Constructor, takes named arguments. Mandatory parameters:
+Constructor, takes named arguments. In order to create a fixed bin size
+histogram, the following parameters are mandatory:
 
 =over 2
 
@@ -338,6 +350,21 @@ The upper boundary of the histogram.
 The number of bins in the histogram.
 
 =back
+
+On the other hand, for creating variable width bin size histograms,
+you must provide B<only> the C<bins> parameter with a reference to
+an array of C<nbins + 1> bin boundaries. For example,
+
+  my $hist = Math::SimpleHisto::XS->new(
+    bins => [1.5, 2.5, 4.0, 6.0, 8.5]
+  );
+
+creates a histogram with four bins:
+
+  [1.5, 2.5)
+  [2.5, 4.0)
+  [4.0, 6.0)
+  [6.0, 8.5)
 
 =head2 C<clone>, C<new_alike>
 
