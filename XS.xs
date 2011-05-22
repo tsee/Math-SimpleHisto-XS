@@ -8,6 +8,11 @@
 #include "histogram.h"
 #include "const-c.inc"
 
+#define HS_ASSERT_BIN_RANGE(self, i) STMT_START {                                     \
+  if (/* i < 0 || */ i >= self->nbins) {                                              \
+    croak("Bin %u outside histogram range (highest bin index is %u", i, self->nbins); \
+  } } STMT_END
+
 MODULE = Math::SimpleHisto::XS    PACKAGE = Math::SimpleHisto::XS
 
 REQUIRE: 2.2201
@@ -296,10 +301,15 @@ nbins(self)
   OUTPUT: RETVAL
 
 double
-binsize(self)
+binsize(self, ibin = 0)
     simple_histo_1d* self
+    unsigned int ibin
   CODE:
-    RETVAL = self->binsize;
+    HS_ASSERT_BIN_RANGE(self, ibin);
+    if (self->bins == NULL)
+      RETVAL = self->binsize;
+    else
+      RETVAL = self->bins[ibin+1] - self->bins[ibin];
   OUTPUT: RETVAL
 
 unsigned int
@@ -348,10 +358,8 @@ bin_content(self, ibin)
     simple_histo_1d* self
     unsigned int ibin
   CODE:
-    if (/*ibin < 0 ||*/ ibin >= self->nbins) {
-      croak("Bin outside histogram range");
-    }
-    RETVAL = (self->data)[ibin];
+    HS_ASSERT_BIN_RANGE(self, ibin);
+    RETVAL = self->data[ibin];
   OUTPUT: RETVAL
 
 
@@ -392,8 +400,7 @@ bin_center(self, ibin)
     simple_histo_1d* self
     unsigned int ibin
   CODE:
-    if (/*ibin < 0 ||*/ ibin >= self->nbins)
-      croak("Bin outside histogram range");
+    HS_ASSERT_BIN_RANGE(self, ibin);
     if (self->bins == NULL)
       RETVAL = self->min + ((double)ibin + 0.5) * self->binsize;
     else
@@ -406,8 +413,7 @@ bin_lower_boundary(self, ibin)
     simple_histo_1d* self
     unsigned int ibin
   CODE:
-    if (/*ibin < 0 ||*/ ibin >= self->nbins)
-      croak("Bin outside histogram range");
+    HS_ASSERT_BIN_RANGE(self, ibin);
     if (self->bins == NULL)
       RETVAL = self->min + (double)ibin * self->binsize;
     else
@@ -499,7 +505,7 @@ find_bin(self, x)
       XSRETURN_UNDEF;
     }
     RETVAL = histo_find_bin(self, x);
-    OUTPUT: RETVAL
+  OUTPUT: RETVAL
 
 
 void
@@ -508,9 +514,7 @@ set_bin_content(self, ibin, content)
     unsigned int ibin
     double content
   PPCODE:
-    if (ibin >= self->nbins) {
-      croak("Histogram bin in access outside histogram size");
-    }
+    HS_ASSERT_BIN_RANGE(self, ibin);
     self->total += content - self->data[ibin];
     self->data[ibin] = content;
 
