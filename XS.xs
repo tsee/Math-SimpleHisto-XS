@@ -561,7 +561,6 @@ integral(self, from, to, type = 0)
     binsize = self->binsize;
 
     /* FIXME handle both to/from being off limits on the same side*/
-
     if (to >= self->max)
       to = self->max;
     if (from < self->min)
@@ -596,23 +595,25 @@ integral(self, from, to, type = 0)
           }
         }
         else { /* variable bin size */
+          /* TODO optimize */
           double* bins = self->bins;
           unsigned int nbins = self->nbins;
 
           i = histo_find_bin_nonconstant_internal(from, nbins, bins);
-  printf("i=%u from=%f to=%f nbins=%u\n", i, from, to, nbins);
-          RETVAL = (bins[i+1]-from) * data[i]; /* distance from 'from' to upper boundary of bin times data in bin */
+          binsize = (bins[i+1]-bins[i]);
+          RETVAL = (bins[i+1]-from)/binsize * data[i]; /* distance from 'from' to upper boundary of bin times data in bin */
 
           n = histo_find_bin_nonconstant_internal(to, nbins, bins);
           if (i == n) {
-            RETVAL -= (bins[i+1]-to) * data[i];
+            RETVAL -= (bins[i+1]-to)/binsize * data[i];
           }
           else {
             ++i;
             for (; i < n; ++i) {
-              RETVAL += data[i] * (bins[i+1]-bins[i]);
+              RETVAL += data[i];
             }
-            RETVAL += data[n] * (bins[n+1]-to);
+            binsize = bins[n+1]-bins[n];
+            RETVAL += data[n] * (to-bins[n])/binsize;
           }
         }
         break;
