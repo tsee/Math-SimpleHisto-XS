@@ -106,6 +106,33 @@ unsigned int
 histo_find_bin_nonconstant_internal(double x, unsigned int nbins, double* bins)
 {
   /* TODO optimize */
+  unsigned int mid;
+  double mid_val;
+  unsigned int imin = 0;
+  unsigned int imax = nbins;
+  while (1) {
+    mid = imin + (imax-imin)/2;
+    mid_val = bins[mid];
+    if (mid_val == x)
+      return mid;
+    else if (mid_val > x) {
+      imax = mid-1;
+      if (imin > imax)
+        return mid-1;
+    }
+    else {
+      imin = mid+1;
+      if (imin > imax)
+        return imin-1;
+    }
+  }
+}
+
+/*
+STATIC
+unsigned int
+histo_find_bin_nonconstant_internal2(double x, unsigned int nbins, double* bins)
+{
   unsigned int imin = 0;
   unsigned int imax = nbins;
   unsigned int i = (unsigned int)(imax/2);
@@ -123,6 +150,36 @@ histo_find_bin_nonconstant_internal(double x, unsigned int nbins, double* bins)
   }
   return imin;
 }
+*/
+
+
+/*
+STATIC
+unsigned int
+histo_find_bin_nonconstant_internal3(double x, unsigned int nbins, double* bins)
+{
+  unsigned int mid;
+  double mid_val;
+  unsigned int imin = 0;
+  unsigned int imax = nbins;
+  while (imin <= imax) {
+    mid = imin + (imax-imin)/2;
+    mid_val = bins[mid];
+
+    if (mid_val < x) {
+      imin = mid + 1;
+    }
+    else if (mid_val > x) {
+      imax = mid - 1;
+    }
+    else {
+      return mid;
+    }
+  }
+  return 0;
+}
+*/
+
 
 STATIC
 unsigned int
