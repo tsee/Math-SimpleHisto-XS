@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 123;
+use Test::More tests => 129;
 BEGIN { use_ok('Math::SimpleHisto::XS') };
 
 use lib 't/lib', 'lib';
@@ -44,6 +44,14 @@ is($h->find_bin($bins->[-1]-1e-2), $n-1, "find_bin max-eps");
 is($h->find_bin(0.5*($bins->[3]+$bins->[4])), 3, "find_bin some bin center");
 
 is($h->find_bin(21), 8, "find_bin x=21 => ibin=8");
+
+is_approx($h->binsize, $h->bin_upper_boundary(0)-$h->bin_lower_boundary(0), "binsize default is first bin");
+for (0, 2, 5) {
+  is_approx($h->binsize($_), $h->bin_upper_boundary($_)-$h->bin_lower_boundary($_), "binsize($_)");
+}
+ok(!eval{$h->binsize(-1); 1}, "binsize(-1) fails");
+ok(!eval{$h->binsize(100); 1}, "binsize(100) fails");
+
 
 #my @t;
 #for (1..1000) {
