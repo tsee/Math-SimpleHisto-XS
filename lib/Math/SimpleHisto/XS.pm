@@ -527,6 +527,23 @@ usual
 Currently, this mechanism hardcodes the use of the C<simple>
 dump format. This is subject to change!
 
+=head2 Serialization and Compatibility
+
+If at all possible, the de-serialization routine C<new_from_dump>
+will be maintained in such a way that it will be able to
+deserialize dumps of histograms that were done with earlier versions
+of this module. If a new version of this module can not at all
+achieve this, that will be mentioned prominently in the change log.
+
+The other way around, serialized histograms are not generally
+backwards-compatible across major versions. That means you cannot
+deserialize a dump made with version 1.01 of this module using
+version 0.05. Such backwards-incompatible changes will always
+be accompanied with major version number changes
+(0.X => 1.X, 1.X => 2.X...).
+
+=head2 Serialization Formats
+
 The various serialization formats that this module supports (see
 the C<dump> documentation below) all have various pros and cons.
 For example, the C<native_pack> format is by far the fastest, but
