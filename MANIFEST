@@ -14,6 +14,9 @@ t/40integral.t
 t/50mean.t
 t/60normalize.t
 t/70dumping.t
+t/71dumpoldversions.t
+t/data/dumps.0.05.txt
+t/data/dumps.1.01.txt
 t/lib/Test_Functions.pm
 typemap
 XS.xs
