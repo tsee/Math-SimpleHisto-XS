@@ -2,11 +2,14 @@ Changes
 const-c.inc
 const-xs.inc
 hist_constants.h
+histogram.h
 lib/Math/SimpleHisto/XS.pm
 Makefile.PL
 MANIFEST			This list of files
 ppport.h
 t/01basic.t
+t/20nonconstantbins.t
+t/30cumulative.t
 t/40integral.t
 t/50mean.t
 t/60normalize.t
