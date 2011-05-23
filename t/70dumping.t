@@ -84,3 +84,13 @@ sub test_dump_undump {
   histo_eq($histo, $clone, "'$type' histo dump is same as original ($name)");
 }
 
+if (grep {/^--print-dumps$/} @ARGV) {
+  open my $fh, ">", "dumps.$Math::SimpleHisto::XS::VERSION.txt"
+    or die $!;
+  binmode $fh;
+  foreach my $dump_type (qw(simple native_pack json yaml)) {
+    print $fh $dump_type, ':', $h->dump($dump_type), "\n\n";
+  }
+  close $fh;
+}
+
