@@ -1,5 +1,11 @@
 Revision history for Perl extension Math::SimpleHisto::XS.
 
+1.02  Wed May 25 09:00:00 2011
+  - Test fixes: On some platforms, is($foo, $bar) is not accurate
+    enough. Need an "is_approx" for floats.
+  - Using done_testing where test number calculation exceeds the
+    tests in complexity.
+
 1.01  Sun May 22 21:48:00 2011
   - Version checks when deserializing
     Note: Future versions of this module will try to be able to
