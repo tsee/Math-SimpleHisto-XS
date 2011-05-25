@@ -16,6 +16,7 @@ WriteMakefile(
     VERSION_FROM      => 'lib/Math/SimpleHisto/XS.pm', # finds $VERSION
     PREREQ_PM         => {
       'ExtUtils::ParseXS' => '0.2201',
+      'Test::More' => '0.88',
     },
     ($] >= 5.005 ?
       (ABSTRACT_FROM  => 'lib/Math/SimpleHisto/XS.pm', # retrieve abstract from module
