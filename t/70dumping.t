@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 153;
+use Test::More;
 BEGIN { use_ok('Math::SimpleHisto::XS') };
 
 use lib 't/lib', 'lib';
@@ -41,7 +41,8 @@ test_dump_undump($_->[0], 'native_pack', $_->[1]) for @test_histos;
 # Storable
 SKIP: {
   if (not eval "require Storable; 1;") {
-    skip 'Could not load Storable', 24 * 2;
+    diag("Could not load Storable, not testing Storable related features");
+    last SKIP;
   }
   foreach my $test_histo (@test_histos) {
     my ($h, $name) = @$test_histo;
@@ -57,7 +58,8 @@ SKIP: {
 # JSON
 SKIP: {
   if (not defined $Math::SimpleHisto::XS::JSON) {
-    skip 'Could not load JSON support module', 13*2;
+    diag("Could not load JSON support module, not testing JSON related features");
+    last SKIP;
   }
   diag("Using $Math::SimpleHisto::XS::JSON_Implementation for testing JSON support");
   test_dump_undump($_->[0], 'json', $_->[1]) for @test_histos;
@@ -66,10 +68,23 @@ SKIP: {
 # YAML
 SKIP: {
   if (not eval "require YAML::Tiny; 1;") {
-    skip 'Could not load YAML::Tiny', 13*2;
+    diag("Could not load YAML::Tiny, not testing YAML::Tiny related features");
+    last SKIP;
   }
   test_dump_undump($_->[0], 'yaml', $_->[1]) for @test_histos;
 }
+
+if (grep {/^--print-dumps$/} @ARGV) {
+  open my $fh, ">", "dumps.$Math::SimpleHisto::XS::VERSION.txt"
+    or die $!;
+  binmode $fh;
+  foreach my $dump_type (qw(simple native_pack json yaml)) {
+    print $fh $dump_type, ':', $h->dump($dump_type), "\n\n";
+  }
+  close $fh;
+}
+
+done_testing();
 
 sub test_dump_undump {
   my $histo = shift;
@@ -82,15 +97,5 @@ sub test_dump_undump {
   my $clone = Math::SimpleHisto::XS->new_from_dump($type, $dump);
   isa_ok($clone, 'Math::SimpleHisto::XS');
   histo_eq($histo, $clone, "'$type' histo dump is same as original ($name)");
-}
-
-if (grep {/^--print-dumps$/} @ARGV) {
-  open my $fh, ">", "dumps.$Math::SimpleHisto::XS::VERSION.txt"
-    or die $!;
-  binmode $fh;
-  foreach my $dump_type (qw(simple native_pack json yaml)) {
-    print $fh $dump_type, ':', $h->dump($dump_type), "\n\n";
-  }
-  close $fh;
 }
 
