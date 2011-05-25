@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 129;
+use Test::More tests => 156;
 BEGIN { use_ok('Math::SimpleHisto::XS') };
 
 use lib 't/lib', 'lib';
@@ -13,9 +13,14 @@ push @$bins, sprintf("%.1f", $x+=$x/($_+1)) for 0..$n;
 my $h = Math::SimpleHisto::XS->new(bins => $bins);
 isa_ok($h, 'Math::SimpleHisto::XS');
 
-is_deeply($h->bin_lower_boundaries(), [map 0+$_, @{$bins}[0..$n-1]], 'lower boundaries okay');
-is_deeply($h->bin_upper_boundaries(), [map 0+$_, @{$bins}[1..$n]], 'upper boundaries okay');
-is_deeply($h->bin_centers(), [map {0.5*($bins->[$_]+$bins->[$_+1])} 0..$n-1], 'bin centers okay');
+my $lower_b = $h->bin_lower_boundaries();
+my $upper_b = $h->bin_upper_boundaries();
+my $centers = $h->bin_centers();
+foreach my $i (0..$#$bins-1) {
+  is_approx($lower_b->[$i], $bins->[$i], "lower boundary ($i) okay");
+  is_approx($upper_b->[$i], $bins->[$i+1], "upper boundary ($i) okay");
+  is_approx($centers->[$i], 0.5*($bins->[$i]+$bins->[$i+1]), "bin center ($i) okay");
+}
 
 foreach my $i (0..$n-1) {
   is_approx($h->bin_lower_boundary($i), $bins->[$i], "lower boundary bin $i");
