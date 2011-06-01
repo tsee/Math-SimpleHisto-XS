@@ -4,6 +4,7 @@
 
 TYPEMAP
 
+Math::SimpleHisto::XS::RNG	T_PTROBJ
 simple_histo_1d*	O_OBJECT
 
 
