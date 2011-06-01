@@ -521,14 +521,22 @@ Normalization defaults to C<1>.
 
 =head2 C<cumulative>
 
-Calculates the cumulative histogram of the histogram and returns
-it as a B<new> histogram object.
+Calculates the cumulative histogram of the invocant
+histogram and returns it as a B<new> histogram object.
 
 The cumulative (if done in Perl) is:
 
   for my $i (0..$n) {
     $content[$i] = sum(map $original_content[$_], 0..$i);
   }
+
+As a convenience, if a numeric argument is passed to the method,
+the cumulative histogram will be normalized to that number.
+
+=head2 C<multiply_constant>
+
+Scales all bin contents, as well as over- and underflow
+by the given constant.
 
 =head1 SERIALIZATION
 
