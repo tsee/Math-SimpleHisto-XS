@@ -110,13 +110,17 @@ cumulative(self)
 
 
 simple_histo_1d*
-cumulative(self)
+new_from_sub_range(self, bin_start, bin_end)
     SV* self
+    unsigned int bin_start
+    unsigned int bin_end
+  ALIAS:
+    new_alike_from_sub_range = 1
   PREINIT:
     const char* CLASS;
   INIT:
-    HS_CLONE_GET_CLASS(CLASS, self, cumulative);
+    HS_CLONE_GET_CLASS(CLASS, self, clone);
   CODE:
-    RETVAL = histo_cumulative(aTHX_ (simple_histo_1d*)SvIV((SV*)SvRV(self)));
+    RETVAL = histo_clone_from_bin_range(aTHX_ (simple_histo_1d*)SvIV((SV*)SvRV(self)), ix, bin_start, bin_end);
   OUTPUT: RETVAL
 
