@@ -531,7 +531,13 @@ The cumulative (if done in Perl) is:
   }
 
 As a convenience, if a numeric argument is passed to the method,
-the cumulative histogram will be normalized to that number.
+the B<OUTPUT> histogram will be normalized to that number B<BEFORE>
+calculating the cumulation. This means that
+
+  my $cumu = $histo->cumulative(1.);
+
+gives a cumulative histogram where the last bin contains exactly
+C<1>.
 
 =head2 C<multiply_constant>
 
