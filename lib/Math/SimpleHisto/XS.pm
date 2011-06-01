@@ -366,13 +366,6 @@ creates a histogram with four bins:
   [4.0, 6.0)
   [6.0, 8.5)
 
-=head2 C<clone>, C<new_alike>
-
-C<$hist-E<gt>clone()> clones the object entirely.
-
-C<$hist-E<gt>new_alike()> clones the parameters of the object,
-but resets the contents of the clone.
-
 =head2 C<fill>
 
 Fill data into the histogram. Takes one or two arguments. The first must be the
@@ -470,6 +463,30 @@ Given a reference to an array containing numbers, sets the contents
 of each bin in the histogram to the number in the respective
 array element. Number of elements needs to match the number of bins
 in the histogram.
+
+=head1 CLONING
+
+=head2 C<clone>, C<new_alike>
+
+C<$hist-E<gt>clone()> clones the object entirely.
+
+C<$hist-E<gt>new_alike()> clones the parameters of the object,
+but resets the contents of the clone.
+
+=head2 C<new_from_bin_range>, C<new_alike_from_bin_range>
+
+C<$hist-E<gt>new_from_bin_range($first_bin, $last_bin)>
+creates a copy of the histogram including all bins from C<$first_bin>
+to C<$last_bin>. For example,
+C<$hist-E<gt>new_from_bin_range(50, 199)> would create a new histogram
+with 150 bins (the range is inclusive!) and copy the respective data
+from the original histogram. All bin contents outside the range will
+be added to the under- or overflow respectively. Specifying a last
+bin above the highest bin number of the source histogram yields
+a new histogram running up to the highest bin of the source.
+
+C<$hist-E<gt>new_alike_from_bin_range($first_bin, $last_bin)>
+does the same, but resets all contents (like C<new_alike).
 
 =head1 CALCULATIONS
 
