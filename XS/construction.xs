@@ -98,14 +98,22 @@ clone(self)
 
 
 simple_histo_1d*
-cumulative(self)
+cumulative(self, normalization = 0.)
     SV* self
+    double normalization
   PREINIT:
     const char* CLASS;
   INIT:
     HS_CLONE_GET_CLASS(CLASS, self, cumulative);
   CODE:
     RETVAL = histo_cumulative(aTHX_ (simple_histo_1d*)SvIV((SV*)SvRV(self)));
+    /* optionally, normalize the cumulative histogram */
+    if (normalization > 0) {
+      if (RETVAL->total == 0) {
+        croak("Cannot normalize histogram without data");
+      }
+      histo_multiply_constant(RETVAL, normalization/RETVAL->total);
+    }
   OUTPUT: RETVAL
 
 
