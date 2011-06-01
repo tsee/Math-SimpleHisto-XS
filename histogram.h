@@ -38,11 +38,12 @@ histo_clone(pTHX_ simple_histo_1d* src, bool empty)
 
   Newx(clone, 1, simple_histo_1d);
 
-  clone->bins = src->bins;
   if (src->bins != NULL) {
     Newx(clone->bins, n+1, double);
     Copy(src->bins, clone->bins, n+1, double);
   }
+  else
+    clone->bins = NULL;
 
   if (!empty) {
     Newx(clone->data, n, double);
