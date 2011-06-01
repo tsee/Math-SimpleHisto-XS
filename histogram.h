@@ -77,7 +77,7 @@ histo_clone_from_bin_range(pTHX_ simple_histo_1d* src, bool empty,
 {
   simple_histo_1d* clone;
   unsigned int i, n = src->nbins;
-  unsigned int nbinsnew = bin_end-bin_start-1;
+  unsigned int nbinsnew = bin_end-bin_start+1;
   if (bin_start > bin_end) {
     i = bin_end;
     bin_end = bin_start;
