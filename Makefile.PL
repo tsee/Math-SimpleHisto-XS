@@ -24,7 +24,7 @@ WriteMakefile(
     LIBS              => [''],
     DEFINE            => $define,
     INC               => '-I.',
-    # OBJECT            => '$(O_FILES)', # link all the C files too
+    OBJECT            => '$(O_FILES)', # link all the C files too
 );
 
 if (eval "require ExtUtils::Constant; 1;") {
