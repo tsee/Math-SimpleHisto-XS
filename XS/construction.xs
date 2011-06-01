@@ -106,14 +106,7 @@ cumulative(self, normalization = 0.)
   INIT:
     HS_CLONE_GET_CLASS(CLASS, self, cumulative);
   CODE:
-    RETVAL = histo_cumulative(aTHX_ (simple_histo_1d*)SvIV((SV*)SvRV(self)));
-    /* optionally, normalize the cumulative histogram */
-    if (normalization > 0) {
-      if (RETVAL->total == 0) {
-        croak("Cannot normalize histogram without data");
-      }
-      histo_multiply_constant(RETVAL, normalization/RETVAL->total);
-    }
+    RETVAL = histo_cumulative(aTHX_ (simple_histo_1d*)SvIV((SV*)SvRV(self)), normalization);
   OUTPUT: RETVAL
 
 
