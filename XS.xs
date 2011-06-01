@@ -45,13 +45,20 @@ DESTROY(self)
 
 
 void
+multiply_constant(self, factor = 1.)
+    simple_histo_1d* self
+    double factor
+  CODE:
+    if (factor < 0.) {
+      croak("Cannot multiply histogram with negative value %f", factor);
+    }
+    histo_multiply_constant(self, factor);
+
+
+void
 normalize(self, normalization = 1.)
     simple_histo_1d* self
     double normalization
-  PREINIT:
-    unsigned int i, n;
-    double* data;
-    double factor;
   CODE:
     if (normalization <= 0.) {
       croak("Cannot normalize to %f", normalization);
@@ -59,15 +66,7 @@ normalize(self, normalization = 1.)
     if (self->total == 0.) {
       croak("Cannot normalize histogram without data");
     }
-    n = self->nbins;
-    data = self->data;
-    factor = normalization / self->total;
-    for (i = 0; i < n; ++i)
-      data[i] *= factor;
-    self->total = normalization;
-    self->overflow *= factor;
-    self->underflow *= factor;
-
+    histo_multiply_constant(self, normalization / self->total);
 
 void
 fill(self, ...)
