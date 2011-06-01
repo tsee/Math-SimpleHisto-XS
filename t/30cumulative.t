@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 230;
+use Test::More tests => 439;
 BEGIN { use_ok('Math::SimpleHisto::XS') };
 
 use lib 't/lib', 'lib';
@@ -34,8 +34,11 @@ foreach ([$hf, 'fixed bin size'], [$hv, 'variable bin size']) {
   is_approx($cum->binsize(3), $h->binsize(3), "binsize(3) same ($name)");
 
   my $sum = 0;
+  my $prev = 0;
   foreach my $i (0..$h->nbins-1) {
-    $sum += $h->bin_content($i);
+    ok($cum->bin_content($i) >= $prev, "Bin content in bin $i monotonically increasing ($name)");
+    $prev = $h->bin_content($i);
+    $sum += $prev;
     is_approx($cum->bin_content($i), $sum, "Cumulative bin content bin $i ($name)");
   }
 
@@ -43,5 +46,15 @@ foreach ([$hf, 'fixed bin size'], [$hv, 'variable bin size']) {
   is_approx($norm_cum->bin_content($norm_cum->nbins-1), 12.3, "Normalized cumulative histo ($name)");
   $norm_cum->multiply_constant(1/12.3);
   is_approx($norm_cum->bin_content($norm_cum->nbins-1), 1., "Normalized cumulative histo after rescaling ($name)");
+
+  $norm_cum = $h->cumulative(1);
+  my $rng = Math::SimpleHisto::XS::RNG->new(time);
+  my @rand = map $norm_cum->rand($rng), 1..100;
+  my $ref = $rand[0];
+  ok((grep $ref == $_, @rand) != 100, 'Sad random number test using new RNG');
+
+  @rand = map $norm_cum->rand(), 1..100;
+  $ref = $rand[0];
+  ok((grep $ref == $_, @rand) != 100, 'Sad random number test!');
 }
 
