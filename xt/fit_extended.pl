@@ -17,9 +17,7 @@ use List::Util qw(max);
 use SOOT qw/:all/; # You probably do not have this module, sorry.
 
 my $rnd = Math::Random::OO::Normal->new(30, 10);
-my $h = Math::SimpleHisto::XS->new(
-  nbins => 100, min => 0., max => 100.
-);
+my $h = Math::SimpleHisto::XS->new(nbins => 100, min => 0., max => 100.);
 
 print "Filling histogram with randomized data...\n";
 $h->fill($rnd->next) for 1..100000;
@@ -27,12 +25,12 @@ $h->normalize;
 
 print "Fitting histogram...\n";
 my @params = (
+  # name, guess, desired precision
   [mu    => 28.1, 0.001],
   [sigma => 1.8, 0.01],
 );
-my $formula = ( normal_distribution('mu', 'sigma'));
 my $residual = Algorithm::CurveFit->curve_fit(
-  formula => $formula,
+  formula => normal_distribution('mu', 'sigma'), # our assumption
   xdata   => $h->bin_centers,
   ydata   => $h->all_bin_contents,
   params  => \@params,
@@ -41,13 +39,14 @@ my $residual = Algorithm::CurveFit->curve_fit(
 print "Fit result:\n";
 print "$_->[0] = $_->[1]\n" for @params;
 
+# Draw the histogram and the fit using SOOT
 my $hs = TH1D->new("gauss", "gauss", $h->nbins, $h->min, $h->max);
 $hs->SetBinContent($_+1, $h->bin_content($_)) for 0..$h->nbins-1;
 $hs->Draw;
 
 $formula =~ s/mu/[0]/g;
 $formula =~ s/sigma/[1]/g;
-my $fun = TF1->new("gaussfit", $formula, $h->min, $h->max);
+my $fun = TF1->new("fit", $formula, $h->min, $h->max);
 $fun->SetParameter($_, $params[$_][1]) for 0..1;
 $fun->SetLineColor(kRed);
 $fun->Draw("SAME");
