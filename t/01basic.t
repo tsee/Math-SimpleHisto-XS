@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 98;
+use Test::More;
 BEGIN { use_ok('Math::SimpleHisto::XS') };
 
 use lib 't/lib', 'lib';
@@ -39,6 +39,7 @@ $h->fill([0.5], [13.]);
 $h->fill([0.5, 2.], [13., 1.]);
 pass("alive");
 
+# Test empty clone
 my $hclone = $h->new_alike();
 is($hclone->nfills, 0, "new_alike returns fresh object");
 is($hclone->total, 0, "new_alike returns fresh object");
@@ -60,9 +61,40 @@ SCOPE: {
   }
 }
 
+# test clone from range
+$h = Math::SimpleHisto::XS->new(nbins => 10, min => 0, max => 1);
+$h->fill(-123., 99.1);
+$h->fill(123., 199.1);
+$h->set_bin_content($_, $_+1) for 0..9;
+$hclone = $h->new_from_bin_range(2, 5);
+my $hclone_empty = $h->new_alike_from_bin_range(2, 5);
+isa_ok($h, "Math::SimpleHisto::XS") for ($hclone, $hclone_empty);
+
+is($hclone->nfills, $h->nfills, "range clone nfills");
+is($hclone_empty->nfills, 0, "range clone empty nfills");
+is($hclone->nbins, 4, "range clone nbins");
+is($hclone_empty->nbins, 4, "empty range clone nbins");
+is_approx($hclone->total, $h->bin_content(2)+$h->bin_content(3)
+                         +$h->bin_content(4)+$h->bin_content(5), "range clone total");
+is_approx($hclone->underflow, $h->underflow+$h->bin_content(0)+$h->bin_content(1), "range clone underflow");
+is_approx($hclone->overflow, $h->overflow+$h->bin_content(6)+$h->bin_content(7)
+                                         +$h->bin_content(8)+$h->bin_content(9),
+          "range clone overflow");
+is_approx($hclone_empty->underflow, 0., "range clone empty underflow");
+is_approx($hclone_empty->overflow, 0., "range clone empty overflow");
+
+foreach my $i (2..5) {
+  is_approx($hclone->bin_content($i-2), $h->bin_content($i), "range clone bin content $i or $i-2");
+  is_approx($hclone->bin_lower_boundary($i-2), $h->bin_lower_boundary($i), "range clone bin lower bound $i or $i-2");
+  is_approx($hclone->bin_upper_boundary($i-2), $h->bin_upper_boundary($i), "range clone bin upper bound $i or $i-2");
+  is_approx($hclone->bin_center($i-2), $h->bin_center($i), "range clone bin center $i or $i-2");
+}
+
+is_deeply($hclone->bin_centers, $hclone_empty->bin_centers, "Cloned bin centers agree");
 
 # memory leaks
 #while (1) {do {my $x = $h->all_bin_contents()}}
 #while (1) {  do {my $h = Math::SimpleHisto::XS->new(nbins => 100, min => 0, max => 1);};}
 #while (1) {  do {$h->fill([0.5], [1.]);};}
 
+done_testing;
