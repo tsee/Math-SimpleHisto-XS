@@ -4,7 +4,7 @@ use warnings;
 
 our $VERSION = '0.01';
 
-my $Gen = undef;
+our $Gen = __PACKAGE__->new(_seed());
 
 sub _seed {
   my $x;
