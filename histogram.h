@@ -315,4 +315,19 @@ histo_cumulative(pTHX_ simple_histo_1d* src)
   return cum;
 }
 
+STATIC
+void
+histo_multiply_constant(simple_histo_1d* self, double constant)
+{
+  unsigned int i, n;
+  double * data;
+  n = self->nbins;
+  data = self->data;
+  for (i = 0; i < n; ++i)
+    data[i] *= constant;
+  self->total *= constant;
+  self->overflow *= constant;
+  self->underflow *= constant;
+}
+
 #endif
