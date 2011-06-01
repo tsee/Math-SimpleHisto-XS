@@ -9,6 +9,8 @@ our $VERSION = '1.02'; # Committed to floating point version numbers!
 require XSLoader;
 XSLoader::load('Math::SimpleHisto::XS', $VERSION);
 
+require Math::SimpleHisto::XS::RNG;
+
 require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT_OK = qw(
