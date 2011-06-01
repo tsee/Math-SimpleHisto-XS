@@ -86,24 +86,26 @@ _new_histo_bins(CLASS, bins)
 simple_histo_1d*
 clone(self)
     SV* self
+  ALIAS:
+    new_alike = 1
   PREINIT:
     const char* CLASS;
   INIT:
     HS_CLONE_GET_CLASS(CLASS, self, clone);
   CODE:
-    RETVAL = histo_clone(aTHX_ (simple_histo_1d*)SvIV((SV*)SvRV(self)), 0);
+    RETVAL = histo_clone(aTHX_ (simple_histo_1d*)SvIV((SV*)SvRV(self)), ix);
   OUTPUT: RETVAL
 
 
 simple_histo_1d*
-new_alike(self)
+cumulative(self)
     SV* self
   PREINIT:
     const char* CLASS;
   INIT:
-    HS_CLONE_GET_CLASS(CLASS, self, new_alike);
+    HS_CLONE_GET_CLASS(CLASS, self, cumulative);
   CODE:
-    RETVAL = histo_clone(aTHX_ (simple_histo_1d*)SvIV((SV*)SvRV(self)), 1);
+    RETVAL = histo_cumulative(aTHX_ (simple_histo_1d*)SvIV((SV*)SvRV(self)));
   OUTPUT: RETVAL
 
 
