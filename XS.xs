@@ -6,6 +6,7 @@
 #include "ppport.h"
 
 #include "histogram.h"
+#include "mt.h"
 #include "const-c.inc"
 
 #define HS_ASSERT_BIN_RANGE(self, i) STMT_START {                                     \
@@ -22,11 +23,23 @@
   } STMT_END
 
 
+typedef struct mt* Math__SimpleHisto__XS__RNG;
+
+void*
+U32ArrayPtr (pTHX_ int n)
+{
+  SV * sv = sv_2mortal( NEWSV( 0, n*sizeof(U32) ) );
+  return SvPVX(sv);
+}
+
+
 MODULE = Math::SimpleHisto::XS    PACKAGE = Math::SimpleHisto::XS
 
 REQUIRE: 2.2201
 
 INCLUDE: const-xs.inc
+
+INCLUDE: XS/rdgen.xs
 
 INCLUDE: XS/construction.xs
 
