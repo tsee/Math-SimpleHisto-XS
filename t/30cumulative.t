@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 226;
+use Test::More tests => 230;
 BEGIN { use_ok('Math::SimpleHisto::XS') };
 
 use lib 't/lib', 'lib';
@@ -38,5 +38,10 @@ foreach ([$hf, 'fixed bin size'], [$hv, 'variable bin size']) {
     $sum += $h->bin_content($i);
     is_approx($cum->bin_content($i), $sum, "Cumulative bin content bin $i ($name)");
   }
+
+  my $norm_cum = $h->cumulative(12.3);
+  is_approx($norm_cum->bin_content($norm_cum->nbins-1), 12.3, "Normalized cumulative histo ($name)");
+  $norm_cum->multiply_constant(1/12.3);
+  is_approx($norm_cum->bin_content($norm_cum->nbins-1), 1., "Normalized cumulative histo after rescaling ($name)");
 }
 
