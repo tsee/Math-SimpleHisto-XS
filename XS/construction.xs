@@ -110,12 +110,12 @@ cumulative(self)
 
 
 simple_histo_1d*
-new_from_sub_range(self, bin_start, bin_end)
+new_from_bin_range(self, bin_start, bin_end)
     SV* self
     unsigned int bin_start
     unsigned int bin_end
   ALIAS:
-    new_alike_from_sub_range = 1
+    new_alike_from_bin_range = 1
   PREINIT:
     const char* CLASS;
   INIT:
