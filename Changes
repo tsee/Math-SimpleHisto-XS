@@ -1,5 +1,20 @@
 Revision history for Perl extension Math::SimpleHisto::XS.
 
+1.03  Wed Jun  1 21:45:00 2011
+  - The rand() method, when called on a cumulative distribution,
+    returns random numbers sampled from the source distribution.
+  - Includes a Mersenne-twister random number generator as
+    Math::SimpleHisto::XS::RNG.
+  - multiply_constant($k) will scale the histogram contents with $k.
+  - The cumulative() method now takes an optional argument that
+    is used to normalize the cumulative distribution's last bin.
+  - The methods new_from_bin_range($i, $j)
+    and new_alike_from_bin_range($i, $j)
+    return clones of the histogram that include only the bins $i
+    to $j.
+  - Several new examples in examples/ and xt/ including an
+    example of fitting and plotting histograms.
+
 1.02  Wed May 25 09:00:00 2011
   - Test fixes: On some platforms, is($foo, $bar) is not accurate
     enough. Need an "is_approx" for floats.
