@@ -337,6 +337,53 @@ set_nfills(self, nfills)
 
 
 void
+rand(self, ...)
+    simple_histo_1d* self
+  PREINIT:
+    double rndval;
+    double retval;
+    SV* rngsv;
+    Math__SimpleHisto__XS__RNG rng;
+    unsigned int ibin;
+  PPCODE:
+    if (items > 1) {
+      rngsv = ST(1);
+    }
+    else {
+      rngsv = get_sv("Math::SimpleHisto::XS::RNG::Gen", 0);
+      if (rngsv == 0) {
+        croak("Cannot find default random number generator!");
+      }
+    }
+    if (sv_derived_from(rngsv, "Math::SimpleHisto::XS::RNG")) {
+      IV tmp = SvIV((SV*)SvRV(rngsv));
+      rng = INT2PTR(Math__SimpleHisto__XS__RNG, tmp);
+    }
+    else
+      Perl_croak(aTHX_ "%s: %s is not of type %s",
+                  "Math::SimpleHisto::XS::rand",
+                  "rng", "Math::SimpleHisto::XS::RNG");
+    rndval = mt_genrand(rng);
+    ibin = rndval < self->data[0] ? 0 : histo_find_bin_nonconstant_internal(rndval, self->nbins, self->data);
+    if (self->bins == 0) { /* constant bin size */
+      retval = self->min + self->binsize * (double)(ibin+1);
+      if (rndval > self->data[ibin]) {
+        retval += self->binsize * (rndval - self->data[ibin])
+                                / (self->data[ibin+1] - self->data[ibin]);
+      }
+    }
+    else { /* variable bin size */
+      retval = self->bins[ibin+1];
+      if (rndval > self->data[ibin]) {
+        retval += (self->bins[ibin+1] - self->bins[ibin])
+                  * (rndval - self->data[ibin])
+                  / (self->data[ibin+1] - self->data[ibin]);
+      }
+    }
+    XPUSHs(sv_2mortal(newSVnv(retval)));
+
+
+void
 _get_info(self)
     simple_histo_1d* self
   PREINIT:
