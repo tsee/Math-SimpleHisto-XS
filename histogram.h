@@ -70,6 +70,42 @@ typedef struct simple_histo_1d_struct simple_histo_1d;
         self->cumulative_hist = histo_cumulative(aTHX_ self, 1.); \
     } STMT_END
 
+
+STATIC
+simple_histo_1d*
+histo_alloc_new_fixed_bins(pTHX_ unsigned int nbins, double min, double max)
+{
+  simple_histo_1d* rv;
+  if (min == max)
+    croak("histogram width cannot be 0");
+  else if (nbins == 0)
+    croak("Cannot create histogram with 0 bins");
+
+  Newx(rv, 1, simple_histo_1d);
+  if (rv == 0)
+    croak("unable to malloc simple_histo_1d");
+
+  if (min > max) {
+    double tmp = min;
+    min = max;
+    max = tmp;
+  }
+  rv->nbins = nbins;
+  rv->min = min;
+  rv->max = max;
+  rv->width = max-min;
+  rv->binsize = rv->width/(double)nbins;
+  rv->overflow = 0.;
+  rv->underflow = 0.;
+  rv->total = 0.;
+  rv->nfills = 0;
+  rv->bins = 0;
+  rv->cumulative_hist = 0;
+  Newxz(rv->data, (int)rv->nbins, double);
+  return rv;
+}
+
+
 STATIC
 simple_histo_1d*
 histo_clone(pTHX_ simple_histo_1d* src, bool empty)
