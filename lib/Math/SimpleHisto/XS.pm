@@ -526,6 +526,20 @@ median bin.
 The estimation is necessary since the true median requires the
 original data.
 
+=head2 C<median_absolute_deviation>
+
+I<WARNING> this is apparently still crashy when facing weird data!
+
+Calculates and returns an estimate of the median absolute
+deviation (MAD) of the histogram. This is a fairly expensive
+operation.
+
+Optionally, as an optimization, you can pass in the previously
+calculated median estimate of the histogram to prevent it
+from having to be recalculated. Make sure you pass in the
+correct value or the behaviour of this method is undefined
+and might even crash your perl!
+
 =head2 C<normalize>
 
 Normalizes the histogram to the parameter of the
