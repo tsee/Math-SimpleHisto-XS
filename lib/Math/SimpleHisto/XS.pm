@@ -511,10 +511,20 @@ the range of the histogram.
 
 =head2 C<mean>
 
-Calculates the (weighted) mean of the histogram contents.
+Calculates the mean of the histogram contents.
 
 Note that the result is not usually the same as if you calculated
 the mean of the input data directly due to the effect of the binning.
+
+=head2 C<median>
+
+Calculates and returns the estimated median of the data in the
+histogram. Achieves sub-bin-size resolution by estimating the median
+position within the bin from the sum of data below and above the
+median bin.
+
+The estimation is necessary since the true median requires the
+original data.
 
 =head2 C<normalize>
 
