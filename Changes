@@ -1,5 +1,8 @@
 Revision history for Perl extension Math::SimpleHisto::XS.
 
+  - highest_bin() returns the index of the highest bin in the
+    histogram.
+
 1.03  Wed Jun  1 21:45:00 2011
   - The rand() method, when called on a cumulative distribution,
     returns random numbers sampled from the source distribution.
