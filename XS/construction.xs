@@ -7,34 +7,7 @@ _new_histo(CLASS, nbins, min, max)
     double min;
     double max;
   CODE:
-    if (min == max) {
-      croak("histogram width cannot be 0");
-    }
-    else if (nbins == 0) {
-      croak("Cannot create histogram with 0 bins");
-    }
-    Newx(RETVAL, 1, simple_histo_1d);
-    if( RETVAL == NULL ){
-      warn("unable to malloc simple_histo_1d");
-      XSRETURN_UNDEF;
-    }
-    if (min > max) {
-      double tmp = min;
-      min = max;
-      max = tmp;
-    }
-    RETVAL->nbins = nbins;
-    RETVAL->min = min;
-    RETVAL->max = max;
-    RETVAL->width = max-min;
-    RETVAL->binsize = RETVAL->width/(double)nbins;
-    RETVAL->overflow = 0.;
-    RETVAL->underflow = 0.;
-    RETVAL->total = 0.;
-    RETVAL->nfills = 0;
-    RETVAL->bins = 0;
-    RETVAL->cumulative_hist = 0;
-    Newxz(RETVAL->data, (int)RETVAL->nbins, double);
+    RETVAL = histo_alloc_new_fixed_bins(aTHX_ nbins, min, max);
   OUTPUT:
     RETVAL
 
