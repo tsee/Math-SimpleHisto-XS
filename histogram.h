@@ -5,7 +5,7 @@
 #include "perl.h"
 #include "hist_constants.h"
 
-typedef struct {
+struct simple_histo_1d_struct {
   /* parameters */
   double min;
   double max;
@@ -26,8 +26,49 @@ typedef struct {
   double* data;
   /* Exists with nbins+1 elements if we do not have constant binsize */
   double* bins;
-} simple_histo_1d;
 
+  /* Optional ptr to cumulative histo.
+   * If this isn't 0, we need to deallocate in the parent
+   * object's DESTROY. This isn't serialized nor cloned
+   * ever since it can be recalculated.
+   * Needs to be invalidated using HS_INVALIDATE_CUMULATIVE
+   * on almost every operation on the histogram!
+   * Not currently invalidated when setting the under-/overflow.
+   */
+  /* The stored cumulative hist MUST be normalized in such a way
+   * that the last bin content is == 1. This is like ->cumulative(1) */
+  struct simple_histo_1d_struct* cumulative_hist;
+};
+
+typedef struct simple_histo_1d_struct simple_histo_1d;
+
+/* deallocates a histogram. Requires a THX */
+#define HS_DEALLOCATE(hist)               \
+    STMT_START {                          \
+      simple_histo_1d* histptr = (hist);  \
+      Safefree( (void*)histptr->data );   \
+      if (histptr->bins != NULL)          \
+        Safefree(histptr->bins);          \
+      Safefree( (void*)histptr );         \
+    } STMT_END
+
+
+/* deallocates the cumulative histogram if necessary. Requires a THX */
+#define HS_INVALIDATE_CUMULATIVE(self)          \
+    STMT_START {                                \
+      if ((self)->cumulative_hist) {            \
+        HS_DEALLOCATE((self)->cumulative_hist); \
+        (self)->cumulative_hist = 0;            \
+      }                                         \
+    } STMT_END
+
+/* allocates the cumulative histogram if necessary. Requires a THX */
+#define HS_ASSERT_CUMULATIVE(self)                                \
+    STMT_START {                                                  \
+      simple_histo_1d* selfptr = (self);                          \
+      if (!(selfptr->cumulative_hist))                            \
+        self->cumulative_hist = histo_cumulative(aTHX_ self, 1.); \
+    } STMT_END
 
 STATIC
 simple_histo_1d*
@@ -37,6 +78,7 @@ histo_clone(pTHX_ simple_histo_1d* src, bool empty)
   unsigned int n = src->nbins;
 
   Newx(clone, 1, simple_histo_1d);
+  clone->cumulative_hist = 0;
 
   if (src->bins != NULL) {
     Newx(clone->bins, n+1, double);
@@ -87,6 +129,7 @@ histo_clone_from_bin_range(pTHX_ simple_histo_1d* src, bool empty,
     bin_end = n-1;
 
   Newx(clone, 1, simple_histo_1d);
+  clone->cumulative_hist = 0;
   Newx(clone->data, nbinsnew, double);
   clone->nbins = nbinsnew;
 
