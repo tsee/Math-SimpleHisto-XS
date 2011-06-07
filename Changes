@@ -10,6 +10,8 @@ Revision history for Perl extension Math::SimpleHisto::XS.
       push @rand_like_hist, $ch->rand for 1..100000;
     After:
       push @rand, $hist->rand for 1..100000;
+  - Implemented the median() and median_absolute_deviation()
+    methods to calculate estimates of those two quantities.
   - highest_bin() returns the index of the highest bin in the
     histogram.
 
