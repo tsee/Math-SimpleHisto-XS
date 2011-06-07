@@ -379,10 +379,11 @@ If the coordinate is a reference to an array, it is assumed to contain many
 data points that are to be filled into the histogram. In this case, if the
 weight is used, it must also be a reference to an array of weights.
 
-=head2 C<min>, C<max>, C<nbins>, C<width>
+=head2 C<min>, C<max>, C<nbins>, C<width>, C<highest_bin>
 
 Return static histogram attributes: minimum coordinate, maximum coordinate,
-number of bins, total width of the histogram, and the size of each bin.
+number of bins, total width of the histogram, and the index of the
+highest bin in the histogram (which is just C<nbins - 1>).
 
 =head2 C<underflow>, C<overflow>
 

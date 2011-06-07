@@ -214,6 +214,14 @@ nbins(self)
     RETVAL = self->nbins;
   OUTPUT: RETVAL
 
+unsigned int
+highest_bin(self)
+    simple_histo_1d* self
+  CODE:
+    /* I know. Trivial, but convienient! */
+    RETVAL = self->nbins-1;
+  OUTPUT: RETVAL
+
 double
 binsize(self, ibin = 0)
     simple_histo_1d* self
