@@ -6,6 +6,8 @@
 #include "ppport.h"
 
 #include "histogram.h"
+#include "histogram_agg.h"
+
 #include "mt.h"
 #include "const-c.inc"
 
