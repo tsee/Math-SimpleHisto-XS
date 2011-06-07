@@ -13,9 +13,8 @@ my $h = Math::SimpleHisto::XS->new(
 );
 $h->fill($rnd->next) for 1..20000;
 
-my $cum = $h->cumulative(1);
 my $h2 = $h->new_alike;
-$h2->fill($cum->rand) for 1..20000;
+$h2->fill($h->rand) for 1..20000;
 
 #$h2->normalize(1);
 #$h->normalize(1);
