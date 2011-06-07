@@ -1,5 +1,15 @@
 Revision history for Perl extension Math::SimpleHisto::XS.
 
+  * This release contains incompatible changes to previous releases *
+  - INCOMPATBLE CHANGE: The rand() method now works on the
+    histogram itself instead of its cumulation. This works by
+    lazily constructing and caching a cumulative histogram
+    internally and greatly reduces the chance for user errors:
+    Before:
+      my $ch = $hist->cumulative(1);
+      push @rand_like_hist, $ch->rand for 1..100000;
+    After:
+      push @rand, $hist->rand for 1..100000;
   - highest_bin() returns the index of the highest bin in the
     histogram.
 
