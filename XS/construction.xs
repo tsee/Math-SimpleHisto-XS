@@ -32,7 +32,8 @@ _new_histo(CLASS, nbins, min, max)
     RETVAL->underflow = 0.;
     RETVAL->total = 0.;
     RETVAL->nfills = 0;
-    RETVAL->bins = NULL;
+    RETVAL->bins = 0;
+    RETVAL->cumulative_hist = 0;
     Newxz(RETVAL->data, (int)RETVAL->nbins, double);
   OUTPUT:
     RETVAL
@@ -78,6 +79,7 @@ _new_histo_bins(CLASS, bins)
     RETVAL->underflow = 0.;
     RETVAL->total = 0.;
     RETVAL->nfills = 0;
+    RETVAL->cumulative_hist = 0;
     Newxz(RETVAL->data, (int)RETVAL->nbins, double);
   OUTPUT:
     RETVAL

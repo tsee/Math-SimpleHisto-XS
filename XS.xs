@@ -9,6 +9,8 @@
 #include "mt.h"
 #include "const-c.inc"
 
+/* more HS_* macros to be found in histogram.h */
+
 #define HS_ASSERT_BIN_RANGE(self, i) STMT_START {                                     \
   if (/* i < 0 || */ i >= self->nbins) {                                              \
     croak("Bin %u outside histogram range (highest bin index is %u", i, self->nbins); \
@@ -51,11 +53,7 @@ void
 DESTROY(self)
     simple_histo_1d* self
   CODE:
-    Safefree( (void*)self->data );
-    if (self->bins != NULL)
-      Safefree(self->bins);
-    Safefree( (void*)self );
-
+    HS_DEALLOCATE(self);
 
 void
 multiply_constant(self, factor = 1.)
@@ -65,6 +63,7 @@ multiply_constant(self, factor = 1.)
     if (factor < 0.) {
       croak("Cannot multiply histogram with negative value %f", factor);
     }
+    HS_INVALIDATE_CUMULATIVE(self);
     histo_multiply_constant(self, factor);
 
 
@@ -79,12 +78,14 @@ normalize(self, normalization = 1.)
     if (self->total == 0.) {
       croak("Cannot normalize histogram without data");
     }
+    HS_INVALIDATE_CUMULATIVE(self);
     histo_multiply_constant(self, normalization / self->total);
 
 void
 fill(self, ...)
     simple_histo_1d* self
   CODE:
+    HS_INVALIDATE_CUMULATIVE(self);
     if (items == 2) {
       SV* const x_tmp = ST(1);
       SvGETMAGIC(x_tmp);
@@ -260,6 +261,7 @@ set_all_bin_contents(self, new_data)
     double* data;
     SV** elem;
   CODE:
+    HS_INVALIDATE_CUMULATIVE(self);
     n = self->nbins;
     if ((unsigned int)(av_len(new_data)+1) != n) {
       croak("Length of new data is %u, size of histogram is %u. That doesn't work.", (unsigned int)(av_len(new_data)+1), n);
@@ -291,6 +293,7 @@ set_bin_content(self, ibin, content)
     double content
   PPCODE:
     HS_ASSERT_BIN_RANGE(self, ibin);
+    HS_INVALIDATE_CUMULATIVE(self);
     self->total += content - self->data[ibin];
     self->data[ibin] = content;
 
@@ -299,6 +302,7 @@ set_underflow(self, content)
     simple_histo_1d* self
     double content
   PPCODE:
+    /* This doesn't invalidate the INTERNAL cumulative histo */
     self->underflow = content;
 
 void
@@ -306,6 +310,7 @@ set_overflow(self, content)
     simple_histo_1d* self
     double content
   PPCODE:
+    /* This doesn't invalidate the INTERNAL cumulative histo */
     self->overflow = content;
 
 
@@ -314,6 +319,7 @@ set_nfills(self, nfills)
     simple_histo_1d* self
     unsigned int nfills
   PPCODE:
+    /* This doesn't invalidate the INTERNAL cumulative histo */
     self->nfills = nfills;
 
 
@@ -353,6 +359,8 @@ rand(self, ...)
     SV* rngsv;
     Math__SimpleHisto__XS__RNG rng;
     unsigned int ibin;
+  PREINIT:
+    simple_histo_1d* cum_hist;
   PPCODE:
     if (items > 1) {
       rngsv = ST(1);
@@ -372,20 +380,26 @@ rand(self, ...)
                   "Math::SimpleHisto::XS::rand",
                   "rng", "Math::SimpleHisto::XS::RNG");
     rndval = mt_genrand(rng);
-    ibin = rndval < self->data[0] ? 0 : histo_find_bin_nonconstant_internal(rndval, self->nbins, self->data);
-    if (self->bins == 0) { /* constant bin size */
-      retval = self->min + self->binsize * (double)(ibin+1);
-      if (rndval > self->data[ibin]) {
-        retval += self->binsize * (rndval - self->data[ibin])
-                                / (self->data[ibin+1] - self->data[ibin]);
+
+    /* Get the properly normalized internal cumulative */
+    HS_ASSERT_CUMULATIVE(self);
+    cum_hist = self->cumulative_hist;
+
+    /* This all operates on the cumulative histogram */
+    ibin = rndval < cum_hist->data[0] ? 0 : histo_find_bin_nonconstant_internal(rndval, cum_hist->nbins, cum_hist->data);
+    if (cum_hist->bins == 0) { /* constant bin size */
+      retval = cum_hist->min + cum_hist->binsize * (double)(ibin+1);
+      if (rndval > cum_hist->data[ibin]) {
+        retval += cum_hist->binsize * (rndval - cum_hist->data[ibin])
+                                      / (cum_hist->data[ibin+1] - cum_hist->data[ibin]);
       }
     }
     else { /* variable bin size */
-      retval = self->bins[ibin+1];
-      if (rndval > self->data[ibin]) {
-        retval += (self->bins[ibin+1] - self->bins[ibin])
-                  * (rndval - self->data[ibin])
-                  / (self->data[ibin+1] - self->data[ibin]);
+      retval = cum_hist->bins[ibin+1];
+      if (rndval > cum_hist->data[ibin]) {
+        retval += (cum_hist->bins[ibin+1] - cum_hist->bins[ibin])
+                  * (rndval - cum_hist->data[ibin])
+                  / (cum_hist->data[ibin+1] - cum_hist->data[ibin]);
       }
     }
     XPUSHs(sv_2mortal(newSVnv(retval)));
