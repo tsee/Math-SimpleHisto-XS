@@ -534,12 +534,12 @@ The cumulative (if done in Perl) is:
   }
 
 As a convenience, if a numeric argument is passed to the method,
-the B<OUTPUT> histogram will be normalized to that number B<BEFORE>
+the B<OUTPUT> histogram will be normalized using number B<BEFORE>
 calculating the cumulation. This means that
 
   my $cumu = $histo->cumulative(1.);
 
-gives a cumulative histogram where the last bin contains exactly
+gives a cumulative histogram where the I<last bin> contains exactly
 C<1>.
 
 =head2 C<multiply_constant>
@@ -549,8 +549,8 @@ by the given constant.
 
 =head1 RANDOM NUMBERS
 
-This module comes with a Mersenne twister-based Random Number Generator
-that follows that in the C<Math::Random::MT> module.
+This module comes with a Mersenne twister-based Random Number
+Generator that follows that in the C<Math::Random::MT> module.
 It is available in the C<Math::SimpleHisto::XS::RNG>
 class. You can create a new RNG by passing one or more
 integers to the C<Math::SimpleHisto::XS::RNG-E<gt>new(...)>
@@ -558,16 +558,9 @@ method. The object's C<rand()> method works like the normal
 Perl C<rand($x)> function.
 
 You can use a histogram as a source for random numbers that
-follow the distribution of the histogram. In order to do
-this, you need to calculate the cumulative histogram of your
-histogram and normalize it in such a way that the content
-of the last bin is exactly C<1>. This is the same as calculating
-the cumulative from a histogram that was previously normalized
-to C<1>. You can achieve this easily
-using the C<cumulative()> method documented above:
+follow the distribution of the histogram.
 
-  my $norm_cumulative = $hist->cumulative(1);
-  push @random_like_hist = $norm_cumulative->rand();
+  push @random_like_hist, $hist->rand() for 1..100000;
 
 If you pass a C<Math::SimpleHisto::XS::RNG> object to
 the call to C<rand()>, that random number generator will be used.
@@ -578,8 +571,6 @@ Optionally given a L<Math::SimpleHisto::XS::RNG> object
 (a random number generator), this
 returns a random number that is drawn from the
 distribution of the histogram.
-B<THIS WORKS ONLY ON THE APROPRIATELY
-NORMALIZED CUMULATIVE HISTOGRAM, SEE ABOVE!>
 
 =head1 SERIALIZATION
 
