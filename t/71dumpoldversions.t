@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use File::Spec;
+use Config;
 my $dumpdir;
 my %dump_data;
 BEGIN {
@@ -8,11 +9,18 @@ BEGIN {
   $dumpdir = 'data' if not -d $dumpdir;
   die "Cannot find data directory" if not -d $dumpdir;
 
+  my $arch = $Config::Config{archname} . '.' . ($Config::Config{use64bitall} ? '64bitall' : 'no64bitall');
+  my $native_dump_arch = 'x86_64-linux-gnu-thread-multi.64bitall';
+
+  my $skip_native_dumps = $arch ne $native_dump_arch;
+  if ($skip_native_dumps) {
+    diag("Detected arch '$arch', but the native dump tests are made for '$native_dump_arch'. Skipping the native dump tests!");
+  }
+
   opendir my $dh, $dumpdir
     or die "Cannot open $dumpdir: $!";
   my @vers_files = map {/^dumps\.(.+)\.txt$/?[$1, $_]:()} readdir($dh);
 
-  my $tests_per_dump = 12;
   foreach my $version_file (@vers_files) {
     my ($version, $file) = @$version_file;
     $file = File::Spec->catfile($dumpdir, $file);
@@ -25,6 +33,7 @@ BEGIN {
       chomp $data;
       $data .= "\n" if $type =~ /^yaml$/i;
       #warn "$type:'$data'";
+      next if $skip_native_dumps;
       $dumps->{$type} = $data;
     }
     close $fh;
