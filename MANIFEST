@@ -5,6 +5,7 @@ const-xs.inc
 examples/fit_extended.pl
 hist_constants.h
 histogram.h
+histogram_agg.h
 lib/Math/SimpleHisto/XS.pm
 lib/Math/SimpleHisto/XS/RNG.pm
 Makefile.PL
