@@ -1,5 +1,6 @@
 Revision history for Perl extension Math::SimpleHisto::XS.
 
+1.10  Thu Jun  9 13:07:00 2011
   * This release contains incompatible changes to previous releases *
   - INCOMPATBLE CHANGE: The rand() method now works on the
     histogram itself instead of its cumulation. This works by
