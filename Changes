@@ -1,5 +1,9 @@
 Revision history for Perl extension Math::SimpleHisto::XS.
 
+1.12  Fri Jun 10 21:29:00 2011
+  - Fix segfaulting bug in median/mad calculation.
+  - Fix t/50mean.t
+
 1.11  Fri Jun 10 20:17:00 2011
   - Minor test bug fix release, no functional changes.
 
