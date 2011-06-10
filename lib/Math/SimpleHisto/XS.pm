@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Carp qw(croak);
 
-our $VERSION = '1.11'; # Committed to floating point version numbers!
+our $VERSION = '1.12'; # Committed to floating point version numbers!
 
 require XSLoader;
 XSLoader::load('Math::SimpleHisto::XS', $VERSION);
