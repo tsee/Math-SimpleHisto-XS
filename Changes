@@ -1,5 +1,8 @@
 Revision history for Perl extension Math::SimpleHisto::XS.
 
+1.11  Fri Jun 10 20:17:00 2011
+  - Minor test bug fix release, no functional changes.
+
 1.10  Thu Jun  9 13:07:00 2011
   * This release contains incompatible changes to previous releases *
   - INCOMPATBLE CHANGE: The rand() method now works on the
