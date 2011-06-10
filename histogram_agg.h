@@ -17,7 +17,10 @@ histo_median(pTHX_ simple_histo_1d* self)
   data = self->data;
   n = self->nbins;
   /* The bin which is >= 0.5, thus the +1 */
-  median_bin = 1+histo_find_bin_nonconstant_internal(0.5, cum_hist->nbins, cum_hist->data);
+  if (cum_hist->data[0] >= 0.5)
+    median_bin = 0;
+  else
+    median_bin = 1+histo_find_bin_nonconstant_internal(0.5, cum_hist->nbins, cum_hist->data);
 
   sum_below = 0.;
   for (i = 0; i < median_bin; ++i)

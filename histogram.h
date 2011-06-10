@@ -259,6 +259,8 @@ histo_find_bin_nonconstant_internal(double x, unsigned int nbins, double* bins)
     if (mid_val == x)
       return mid;
     else if (mid_val > x) {
+      if (mid == 0)
+        return 0;
       imax = mid-1;
       if (imin > imax)
         return mid-1;
