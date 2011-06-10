@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+use Test::More;
 use File::Spec;
 use Config;
 my $dumpdir;
@@ -40,7 +41,6 @@ BEGIN {
   }
 }
 
-use Test::More;
 BEGIN { use_ok('Math::SimpleHisto::XS') };
 
 use lib 't/lib', 'lib';
