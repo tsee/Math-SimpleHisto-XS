@@ -1,4 +1,6 @@
 use 5.008001;
+use strict;
+use warnings;
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
@@ -15,7 +17,7 @@ WriteMakefile(
     NAME              => $name,
     VERSION_FROM      => 'lib/Math/SimpleHisto/XS.pm', # finds $VERSION
     PREREQ_PM         => {
-      'ExtUtils::ParseXS' => '0.2201',
+      'ExtUtils::ParseXS' => '2.2201',
       'Test::More' => '0.88',
     },
     ($] >= 5.005 ?
