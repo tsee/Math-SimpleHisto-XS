@@ -1,6 +1,9 @@
 #ifndef histogram_h_
 #define histogram_h_
 
+/* These are currently necessary for the malloc wrappers that perl defines.
+ * TODO: It probably warrants understanding to what extent they are important
+ * and useful in this code. */
 #include "EXTERN.h"
 #include "perl.h"
 #include "hist_constants.h"
@@ -109,5 +112,7 @@ histo_multiply_constant(simple_histo_1d* self, double constant);
  * value falls into */
 unsigned int
 find_bin_nonconstant(double x, unsigned int nbins, double* bins);
+
+#include "histogram_agg.h"
 
 #endif
