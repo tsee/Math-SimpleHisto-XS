@@ -262,6 +262,9 @@ set_all_bin_contents(self, new_data)
     double* data;
     SV** elem;
   CODE:
+    /* While this would be nicer in the histogram API, it will be much faster
+     * to access the AV* on the fly instead of doing blanket conversion to remove
+     * dependence on perl data structures, so this stays here for the time being. */
     HS_INVALIDATE_CUMULATIVE(self);
     n = self->nbins;
     if ((unsigned int)(av_len(new_data)+1) != n) {
@@ -293,6 +296,7 @@ set_bin_content(self, ibin, content)
     unsigned int ibin
     double content
   PPCODE:
+    /* Would be nicer in the API, but again, this is faster. */
     HS_ASSERT_BIN_RANGE(self, ibin);
     HS_INVALIDATE_CUMULATIVE(self);
     self->total += content - self->data[ibin];
