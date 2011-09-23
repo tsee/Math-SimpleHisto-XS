@@ -2,6 +2,39 @@
 #include "histogram.h"
 
 double
+histo_mean(pTHX_ simple_histo_1d* self)
+{
+  double x;
+  double* data;
+  unsigned int i, n;
+  double retval = 0.;
+  
+  if (!self->nfills)
+    return 0.;
+  
+  data = self->data;
+  n = self->nbins;
+  if (self->bins == NULL) {
+    const double binsize = self->binsize;
+    x = self->min + 0.5*binsize;
+    for (i = 0; i < n; ++i) {
+      retval += data[i] * x;
+      x += binsize;
+    }
+  }
+  else { /* non-constant binsize */
+    const double* bins = self->bins;
+    for (i = 0; i < n; ++i) {
+      x = 0.5*(bins[i] + bins[i+1]);
+      retval += data[i] * x;
+    }
+  }
+  retval /= self->total;
+
+  return retval;
+}
+
+double
 histo_median(pTHX_ simple_histo_1d* self)
 {
   simple_histo_1d* cum_hist;

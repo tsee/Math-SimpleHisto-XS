@@ -92,33 +92,10 @@ integral(self, from, to, type = 0)
 double
 mean(self)
     simple_histo_1d* self
-  PREINIT:
-    double x;
-    double* data;
-    unsigned int i, n;
   CODE:
     if (self->nfills == 0)
       XSRETURN_UNDEF;
-
-    RETVAL = 0.;
-    data = self->data;
-    n = self->nbins;
-    if (self->bins == NULL) {
-      double binsize = self->binsize;
-      x = self->min + 0.5*binsize;
-      for (i = 0; i < n; ++i) {
-        RETVAL += data[i] * x;
-        x += binsize;
-      }
-    }
-    else { /* non-constant binsize */
-      double* bins = self->bins;
-      for (i = 0; i < n; ++i) {
-        x = 0.5*(bins[i] + bins[i+1]);
-        RETVAL += data[i] * x;
-      }
-    }
-    RETVAL /= self->total;
+    RETVAL = histo_mean(aTHX_ self);
   OUTPUT: RETVAL
 
 double
