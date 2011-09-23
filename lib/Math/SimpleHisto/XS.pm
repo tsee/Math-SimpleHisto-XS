@@ -379,6 +379,11 @@ If the coordinate is a reference to an array, it is assumed to contain many
 data points that are to be filled into the histogram. In this case, if the
 weight is used, it must also be a reference to an array of weights.
 
+=head2 C<fill_by_bin>
+
+Fills data into the histogram and works like C<fill()>, but the first
+argument (the value(s)) must be bin numbers instead of coordinates.
+
 =head2 C<min>, C<max>, C<nbins>, C<width>, C<highest_bin>
 
 Return static histogram attributes: minimum coordinate, maximum coordinate,

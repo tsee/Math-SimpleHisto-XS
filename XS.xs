@@ -166,6 +166,91 @@ fill(self, ...)
       croak("Invalid number of arguments to fill(self, ...)");
     }
 
+void
+fill_by_bin(self, ...)
+    simple_histo_1d* self
+  CODE:
+    HS_INVALIDATE_CUMULATIVE(self);
+    if (items == 2) {
+      SV* const x_tmp = ST(1);
+      SvGETMAGIC(x_tmp);
+      if (SvROK(x_tmp) && SvTYPE(SvRV(x_tmp)) == SVt_PVAV) {
+        int i, n;
+        SV** sv;
+        int* ibin;
+        AV* av = (AV*)SvRV(x_tmp);
+        n = av_len(av);
+        Newx(ibin, n+1, int);
+        for (i = 0; i <= n; ++i) {
+          sv = av_fetch(av, i, 0);
+          if (sv == NULL) {
+            Safefree(ibin);
+            croak("Shouldn't happen");
+          }
+          ibin[i] = SvIV(*sv);
+        }
+        histo_fill_by_bin(self, n+1, ibin, NULL);
+        Safefree(ibin);
+      }
+      else {
+        const int ibin = SvUV(ST(1));
+        histo_fill_by_bin(self, 1, &ibin, NULL);
+      }
+    }
+    else if (items == 3) {
+      SV* const x_tmp = ST(1);
+      SV* const w_tmp = ST(2);
+      SvGETMAGIC(x_tmp);
+      SvGETMAGIC(w_tmp);
+      if (SvROK(x_tmp) && SvTYPE(SvRV(x_tmp)) == SVt_PVAV) {
+        int i, n;
+        SV** sv;
+        int *ibin;
+        double *w;
+        AV *xav, *wav;
+        if (!SvROK(w_tmp) || SvTYPE(SvRV(x_tmp)) != SVt_PVAV) {
+          croak("Need array of weights if using array of bin numbers");
+        }
+        xav = (AV*)SvRV(x_tmp);
+        wav = (AV*)SvRV(w_tmp);
+        n = av_len(xav);
+        if (av_len(wav) != n) {
+          croak("ibin and w array lengths differ");
+        }
+
+        Newx(ibin, n+1, int);
+        Newx(w, n+1, double);
+        for (i = 0; i <= n; ++i) {
+          sv = av_fetch(xav, i, 0);
+          if (sv == NULL) {
+            Safefree(ibin);
+            Safefree(w);
+            croak("Shouldn't happen");
+          }
+          ibin[i] = SvIV(*sv);
+
+          sv = av_fetch(wav, i, 0);
+          if (sv == NULL) {
+            Safefree(ibin);
+            Safefree(w);
+            croak("Shouldn't happen");
+          }
+          w[i] = SvNV(*sv);
+        }
+        histo_fill_by_bin(self, n+1, ibin, w);
+        Safefree(ibin);
+        Safefree(w);
+      }
+      else {
+        int ibin = SvIV(ST(1));
+        double w = SvNV(ST(2));
+        histo_fill_by_bin(self, 1, &ibin, &w);
+      }
+    }
+    else {
+      croak("Invalid number of arguments to fill(self, ...)");
+    }
+
 
 double
 min(self)

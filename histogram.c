@@ -238,7 +238,7 @@ histo_find_bin(simple_histo_1d* self, double x)
 
 
 void
-histo_fill(simple_histo_1d* self, unsigned int n, double* x_in, double* w_in)
+histo_fill(simple_histo_1d* self, unsigned int n, const double* x_in, const double* w_in)
 {
   unsigned int i;
   double min = self->min, max = self->max, binsize = self->binsize, x, w;
@@ -272,6 +272,40 @@ histo_fill(simple_histo_1d* self, unsigned int n, double* x_in, double* w_in)
     }
   }
 }
+
+
+void
+histo_fill_by_bin(simple_histo_1d* self, const unsigned int n, const int* ibin_in, const double* w_in)
+{
+  unsigned int i;
+  int ibin;
+  double w;
+  double *data = self->data;
+  const int nbins = (int)self->nbins;
+
+  HS_INVALIDATE_CUMULATIVE(self);
+
+  for (i = 0; i < n; ++i) {
+    self->nfills++;
+    ibin = ibin_in[i];
+
+    if (w_in == NULL) w = 1;
+    else              w = w_in[i];
+
+    if (ibin < 0) {
+      self->underflow += w;
+      continue;
+    }
+    else if (ibin >= nbins) {
+      self->overflow += w;
+      continue;
+    }
+
+    self->total += w;
+    data[ibin] += w;
+  }
+}
+
 
 
 simple_histo_1d*

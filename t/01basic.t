@@ -32,6 +32,26 @@ SCOPE: {
   }
 }
 
+$h->fill_by_bin(0);
+$h->fill_by_bin(-1);
+$h->fill_by_bin(1, 2.3);
+$h->fill_by_bin([2, 5]);
+$h->fill_by_bin([3,4], [2,3]);
+$h->fill_by_bin(1e9, 1);
+
+SCOPE: {
+  my $exp = [0,12.4,(0)x8];
+  for ([0, 1], [1, 2.3], [2, 1], [5, 1], [3, 2], [4, 3]) {
+    $exp->[$_->[0]] += $_->[1];
+  }
+
+  my $data = $h->all_bin_contents;
+  for (0..9) {
+    is_approx($data->[$_], $exp->[$_], "Bin $_ is right (after fill_by_bin)");
+    is_approx($h->bin_content($_), $exp->[$_], "Bin $_ is right (extra call, after fill_by_bin))");
+  }
+}
+
 $h->fill(-2.);
 $h->fill(0.5);
 $h->fill(0.5, 13.);

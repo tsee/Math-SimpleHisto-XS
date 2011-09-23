@@ -117,7 +117,11 @@ histo_find_bin(simple_histo_1d* self, double x);
 /* Fill n values x_in into the histogram. If the weights array w_in is
  * NULL, a weight of 1 will be used for all x. */
 void
-histo_fill(simple_histo_1d* self, unsigned int n, double* x_in, double* w_in);
+histo_fill(simple_histo_1d* self, const unsigned int n, const double* x_in, const double* w_in);
+
+/* Same as histo_fill, but expects bin numbers instead of coordinates */
+void
+histo_fill_by_bin(simple_histo_1d* self, const unsigned int n, const int* ibin_in, const double* w_in);
 
 /* Calculates the cumulative histogram of the source histogram.
  * If the prenormalization is > 0, the output histogram will be
