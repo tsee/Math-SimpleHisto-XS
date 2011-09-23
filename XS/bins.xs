@@ -39,10 +39,7 @@ bin_center(self, ibin)
     unsigned int ibin
   CODE:
     HS_ASSERT_BIN_RANGE(self, ibin);
-    if (self->bins == NULL)
-      RETVAL = self->min + ((double)ibin + 0.5) * self->binsize;
-    else
-      RETVAL = 0.5*(self->bins[ibin] + self->bins[ibin+1]);
+    RETVAL = HS_BIN_CENTER(self, ibin);
   OUTPUT: RETVAL
 
 
@@ -52,10 +49,7 @@ bin_lower_boundary(self, ibin)
     unsigned int ibin
   CODE:
     HS_ASSERT_BIN_RANGE(self, ibin);
-    if (self->bins == NULL)
-      RETVAL = self->min + (double)ibin * self->binsize;
-    else
-      RETVAL = self->bins[ibin];
+    RETVAL = HS_BIN_LOWER_BOUNDARY(self, ibin);
   OUTPUT: RETVAL
 
 
@@ -64,12 +58,8 @@ bin_upper_boundary(self, ibin)
     simple_histo_1d* self
     unsigned int ibin
   CODE:
-    if (/*ibin < 0 ||*/ ibin >= self->nbins)
-      croak("Bin outside histogram range");
-    if (self->bins == NULL)
-      RETVAL = self->min + ((double)ibin + 1) * self->binsize;
-    else
-      RETVAL = self->bins[ibin+1];
+    HS_ASSERT_BIN_RANGE(self, ibin);
+    RETVAL = HS_BIN_UPPER_BOUNDARY(self, ibin);
   OUTPUT: RETVAL
 
 

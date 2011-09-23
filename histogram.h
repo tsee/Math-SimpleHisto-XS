@@ -75,6 +75,24 @@ typedef struct simple_histo_1d_struct simple_histo_1d;
         self->cumulative_hist = histo_cumulative(aTHX_ self, 1.); \
     } STMT_END
 
+/* Fetch the center of the given bin without range checking. */
+#define HS_BIN_CENTER(self, ibin)                                 \
+      ((self)->bins == NULL)                                      \
+        ? (self)->min + ((double)(ibin) + 0.5) * (self)->binsize  \
+        : 0.5*((self)->bins[ibin] + (self)->bins[(ibin)+1])
+
+/* Fetch the lower boundary of the given bin without range checking. */
+#define HS_BIN_LOWER_BOUNDARY(self, ibin)                         \
+      ((self)->bins == NULL)                                      \
+        ? (self)->min + (double)(ibin) * (self)->binsize          \
+        : (self)->bins[ibin]
+
+/* Fetch the upper boundary of the given bin without range checking. */
+#define HS_BIN_UPPER_BOUNDARY(self, ibin)                         \
+      ((self)->bins == NULL)                                      \
+        ?  (self)->min + ((double)((ibin) + 1)) * (self)->binsize \
+        : (self)->bins[(ibin)+1]
+
 /* creates a new fixed-bin histogram */
 simple_histo_1d*
 histo_alloc_new_fixed_bins(pTHX_ unsigned int nbins, double min, double max);
