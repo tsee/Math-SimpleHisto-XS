@@ -7,6 +7,7 @@
 
 #include "histogram.h"
 #include "histogram_agg.h"
+#include "histo_perl_interf.h"
 
 #include "mt.h"
 #include "const-c.inc"
