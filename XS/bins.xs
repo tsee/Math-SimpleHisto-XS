@@ -71,6 +71,7 @@ bin_lower_boundaries(self)
     SV* rv;
     int i, n;
   PPCODE:
+    /* inlines HS_BIN_LOWER_BOUNDARY somewhat for unrolling */
     av = newAV();
     rv = (SV*)newRV((SV*)av);
     SvREFCNT_dec(av);
@@ -102,6 +103,7 @@ bin_upper_boundaries(self)
     int i, n;
     double x, binsize;
   PPCODE:
+    /* inlines HS_BIN_UPPER_BOUNDARY somewhat for unrolling */
     av = newAV();
     rv = (SV*)newRV((SV*)av);
     SvREFCNT_dec(av);
