@@ -11,7 +11,9 @@
 #include "mt.h"
 #include "const-c.inc"
 
-/* more HS_* macros to be found in histogram.h */
+/* More HS_* macros to be found in histogram.h. Those here
+ * are more chummy with perl than those in histogram.h, which only
+ * currently use the memory allocation macros of perl. */
 
 #define HS_ASSERT_BIN_RANGE(self, i) STMT_START {                                     \
   if (/* i < 0 || */ i >= self->nbins) {                                              \

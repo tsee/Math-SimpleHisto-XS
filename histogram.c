@@ -34,6 +34,7 @@ histo_alloc_new_fixed_bins(pTHX_ unsigned int nbins, double min, double max)
   return rv;
 }
 
+
 simple_histo_1d*
 histo_clone(pTHX_ simple_histo_1d* src, bool empty)
 {
@@ -160,7 +161,6 @@ histo_find_bin_nonconstant_internal3(double x, unsigned int nbins, double* bins)
 
 
 
-
 simple_histo_1d*
 histo_clone_from_bin_range(pTHX_ simple_histo_1d* src, bool empty,
                            unsigned int bin_start, unsigned int bin_end)
@@ -236,6 +236,7 @@ histo_find_bin(simple_histo_1d* self, double x)
   }
 }
 
+
 void
 histo_fill(simple_histo_1d* self, unsigned int n, double* x_in, double* w_in)
 {
@@ -269,6 +270,7 @@ histo_fill(simple_histo_1d* self, unsigned int n, double* x_in, double* w_in)
     }
   }
 }
+
 
 simple_histo_1d*
 histo_cumulative(pTHX_ simple_histo_1d* src, double prenormalization)

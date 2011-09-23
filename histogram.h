@@ -79,23 +79,25 @@ typedef struct simple_histo_1d_struct simple_histo_1d;
 simple_histo_1d*
 histo_alloc_new_fixed_bins(pTHX_ unsigned int nbins, double min, double max);
 
-/* clones the given histogram, 'empty' indicates that the clone should
- * be alike the original, but not contain the data */
+/* Clones the given histogram, 'empty' indicates that the clone should
+ * be alike the original, but not contain the data. */
 simple_histo_1d*
 histo_clone(pTHX_ simple_histo_1d* src, bool empty);
 
-/* clones a given histogram while stripping off all bins below the input
- * histogram's bin 'bin_start' and beyond bin 'bin_end' */
+/* Clones a given histogram while stripping off all bins below the input
+ * histogram's bin 'bin_start' and beyond bin 'bin_end'. */
 simple_histo_1d*
 histo_clone_from_bin_range(pTHX_ simple_histo_1d* src, bool empty,
                            unsigned int bin_start, unsigned int bin_end);
 
-/* returns the bin number where x would be filled into the given
+/* Returns the bin number where x would be filled into the given
  * histogram abstracts away whether the given histogram uses
- * constant or non-constant bin sizes */
+ * constant or non-constant bin sizes. */
 unsigned int
 histo_find_bin(simple_histo_1d* self, double x);
 
+/* Fill n values x_in into the histogram. If the weights array w_in is
+ * NULL, a weight of 1 will be used for all x. */
 void
 histo_fill(simple_histo_1d* self, unsigned int n, double* x_in, double* w_in);
 
