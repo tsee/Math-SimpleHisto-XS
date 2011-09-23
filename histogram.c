@@ -245,6 +245,8 @@ histo_fill(simple_histo_1d* self, unsigned int n, double* x_in, double* w_in)
   double *data = self->data;
   double *bins = self->bins;
 
+  HS_INVALIDATE_CUMULATIVE(self);
+
   for (i = 0; i < n; ++i) {
     self->nfills++;
     x = x_in[i];
@@ -314,6 +316,7 @@ histo_multiply_constant(simple_histo_1d* self, double constant)
 {
   unsigned int i, n;
   double * data;
+  HS_INVALIDATE_CUMULATIVE(self); /* Rescaling invalidates the cache. */
   n = self->nbins;
   data = self->data;
   for (i = 0; i < n; ++i)

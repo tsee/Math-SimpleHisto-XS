@@ -15,6 +15,9 @@
  * are more chummy with perl than those in histogram.h, which only
  * currently use the memory allocation macros of perl. */
 
+/* Ideally, HS_ASSERT_BIN_RANGE would be part of the histogram.h
+ * API, but given that we know the unsigned data type here AND have
+ * access to perl's croak conveniently, that seems premature cleanup. */
 #define HS_ASSERT_BIN_RANGE(self, i) STMT_START {                                     \
   if (/* i < 0 || */ i >= self->nbins) {                                              \
     croak("Bin %u outside histogram range (highest bin index is %u", i, self->nbins); \
@@ -64,10 +67,8 @@ multiply_constant(self, factor = 1.)
     simple_histo_1d* self
     double factor
   CODE:
-    if (factor < 0.) {
+    if (factor < 0.)
       croak("Cannot multiply histogram with negative value %f", factor);
-    }
-    HS_INVALIDATE_CUMULATIVE(self);
     histo_multiply_constant(self, factor);
 
 
@@ -76,20 +77,16 @@ normalize(self, normalization = 1.)
     simple_histo_1d* self
     double normalization
   CODE:
-    if (normalization <= 0.) {
+    if (normalization <= 0.)
       croak("Cannot normalize to %f", normalization);
-    }
-    if (self->total == 0.) {
+    if (self->total == 0.)
       croak("Cannot normalize histogram without data");
-    }
-    HS_INVALIDATE_CUMULATIVE(self);
     histo_multiply_constant(self, normalization / self->total);
 
 void
 fill(self, ...)
     simple_histo_1d* self
   CODE:
-    HS_INVALIDATE_CUMULATIVE(self);
     if (items == 2) {
       SV* const x_tmp = ST(1);
       SvGETMAGIC(x_tmp);
