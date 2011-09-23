@@ -63,11 +63,11 @@ integral(self, from, to, type = 0)
           double* bins = self->bins;
           unsigned int nbins = self->nbins;
 
-          i = histo_find_bin_nonconstant_internal(from, nbins, bins);
+          i = find_bin_nonconstant(from, nbins, bins);
           binsize = (bins[i+1]-bins[i]);
           RETVAL = (bins[i+1]-from)/binsize * data[i]; /* distance from 'from' to upper boundary of bin times data in bin */
 
-          n = histo_find_bin_nonconstant_internal(to, nbins, bins);
+          n = find_bin_nonconstant(to, nbins, bins);
           if (i == n) {
             RETVAL -= (bins[i+1]-to)/binsize * data[i];
           }

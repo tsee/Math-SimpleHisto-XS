@@ -78,7 +78,7 @@ histo_clone(pTHX_ simple_histo_1d* src, bool empty)
 
 
 unsigned int
-histo_find_bin_nonconstant_internal(double x, unsigned int nbins, double* bins)
+find_bin_nonconstant(double x, unsigned int nbins, double* bins)
 {
   /* TODO optimize */
   unsigned int mid;
@@ -232,7 +232,7 @@ histo_find_bin(simple_histo_1d* self, double x)
     return( (x-self->min) / self->binsize );
   }
   else {
-    return histo_find_bin_nonconstant_internal(x, self->nbins, self->bins);
+    return find_bin_nonconstant(x, self->nbins, self->bins);
   }
 }
 
@@ -265,7 +265,7 @@ histo_fill(simple_histo_1d* self, unsigned int n, double* x_in, double* w_in)
       data[(int)((x-min)/binsize)] += w;
     }
     else {
-      data[histo_find_bin_nonconstant_internal(x, self->nbins, self->bins)] += w;
+      data[find_bin_nonconstant(x, self->nbins, self->bins)] += w;
     }
   }
 }

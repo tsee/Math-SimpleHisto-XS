@@ -53,7 +53,8 @@ typedef struct simple_histo_1d_struct simple_histo_1d;
     } STMT_END
 
 
-/* deallocates the cumulative histogram if necessary. Requires a THX */
+/* deallocates the cumulative histogram of the given histogram
+ * IF NECESSARY. Requires a THX */
 #define HS_INVALIDATE_CUMULATIVE(self)          \
     STMT_START {                                \
       if ((self)->cumulative_hist) {            \
@@ -62,7 +63,8 @@ typedef struct simple_histo_1d_struct simple_histo_1d;
       }                                         \
     } STMT_END
 
-/* allocates the cumulative histogram if necessary. Requires a THX */
+/* allocates the cumulative histogram of the given histogram
+ * IF NECESSARY. Requires a THX */
 #define HS_ASSERT_CUMULATIVE(self)                                \
     STMT_START {                                                  \
       simple_histo_1d* selfptr = (self);                          \
@@ -70,20 +72,24 @@ typedef struct simple_histo_1d_struct simple_histo_1d;
         self->cumulative_hist = histo_cumulative(aTHX_ self, 1.); \
     } STMT_END
 
-
+/* creates a new fixed-bin histogram */
 simple_histo_1d*
 histo_alloc_new_fixed_bins(pTHX_ unsigned int nbins, double min, double max);
 
+/* clones the given histogram, 'empty' indicates that the clone should
+ * be alike the original, but not contain the data */
 simple_histo_1d*
 histo_clone(pTHX_ simple_histo_1d* src, bool empty);
 
+/* clones a given histogram while stripping off all bins below the input
+ * histogram's bin 'bin_start' and beyond bin 'bin_end' */
 simple_histo_1d*
 histo_clone_from_bin_range(pTHX_ simple_histo_1d* src, bool empty,
                            unsigned int bin_start, unsigned int bin_end);
 
-unsigned int
-histo_find_bin_nonconstant_internal(double x, unsigned int nbins, double* bins);
-
+/* returns the bin number where x would be filled into the given
+ * histogram abstracts away whether the given histogram uses
+ * constant or non-constant bin sizes */
 unsigned int
 histo_find_bin(simple_histo_1d* self, double x);
 
@@ -98,5 +104,10 @@ histo_cumulative(pTHX_ simple_histo_1d* src, double prenormalization);
 
 void
 histo_multiply_constant(simple_histo_1d* self, double constant);
+
+/* Implements the binary search logic for locating the bin that a given
+ * value falls into */
+unsigned int
+find_bin_nonconstant(double x, unsigned int nbins, double* bins);
 
 #endif

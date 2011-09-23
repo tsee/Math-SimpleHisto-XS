@@ -389,7 +389,7 @@ rand(self, ...)
     cum_hist = self->cumulative_hist;
 
     /* This all operates on the cumulative histogram */
-    ibin = rndval < cum_hist->data[0] ? 0 : histo_find_bin_nonconstant_internal(rndval, cum_hist->nbins, cum_hist->data);
+    ibin = rndval < cum_hist->data[0] ? 0 : find_bin_nonconstant(rndval, cum_hist->nbins, cum_hist->data);
     if (cum_hist->bins == 0) { /* constant bin size */
       retval = cum_hist->min + cum_hist->binsize * (double)(ibin+1);
       if (rndval > cum_hist->data[ibin]) {
