@@ -163,7 +163,7 @@ sub new_from_dump {
   my $struct = $Math::SimpleHisto::XS::JSON->decode($data);
   $class = delete $struct->{class};
   my $hclass = delete $struct->{histclass};
-  $struct->{hist} = $hclass->new_from_dump(delete $struct->{hist});
+  $struct->{hist} = $hclass->new_from_dump($type, delete $struct->{hist});
   return bless($struct => $class);
 }
 
