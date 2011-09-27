@@ -39,14 +39,19 @@ sub histo_eq {
   is_approx($test->total, $ref->total, "total is the same ($name)");
 
   my $ref_content = $ref->all_bin_contents();
-  my $ref_centers = $ref->bin_centers();
   my $test_content = $test->all_bin_contents();
-  my $test_centers = $test->bin_centers();
+  my ($ref_centers, $test_centers);
+  if (not $is_named) {
+    $ref_centers = $ref->bin_centers();
+    $test_centers = $test->bin_centers();
+  }
   Test::More::is(scalar(@$ref_content), scalar(@{$test->all_bin_contents()}), "No. of bins with content correct ($name)");
-  Test::More::is(scalar(@$ref_centers), scalar(@{$test->bin_centers()}), "No. of bin centers correct ($name)");
+  Test::More::is(scalar(@$ref_centers), scalar(@{$test->bin_centers()}), "No. of bin centers correct ($name)")
+    if not $is_named;
   foreach my $i (0..$ref->nbins-1) {
     is_approx($test_content->[$i], $ref_content->[$i], "Bin content bin $i ($name)");
-    is_approx($test_centers->[$i], $ref_centers->[$i], "Bin center bin $i ($name)");
+    is_approx($test_centers->[$i], $ref_centers->[$i], "Bin center bin $i ($name)")
+      if not $is_named;
   }
 }
 

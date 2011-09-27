@@ -46,6 +46,8 @@ SCOPE: {
   }
 }
 
+histo_eq($h, $h->clone(), "clone equal");
+
 # Test empty clone
 my $hclone = $h->new_alike();
 is($hclone->nfills, 0, "new_alike returns fresh object");
