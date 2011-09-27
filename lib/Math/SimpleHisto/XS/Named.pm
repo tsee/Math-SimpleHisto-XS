@@ -297,6 +297,12 @@ is an implementation details that should not matter to your code.
 The C<Storable> freeze/thaw hooks are delegated to the C<Math::SimpleHisto::XS>
 implementation and should work as is.
 
+The serialization wrapping does not currently handle dumping/loading dumps
+in the same backwards compatible way that C<Math::SimpleHisto::XS> does.
+Since there are no version-incompatibilities in the
+C<Math::SimpleHisto::XS::Named> code yet, this is not currently an issue
+and will be addressed when the first incompatibility pops up.
+
 =head1 SEE ALSO
 
 This module is built on top of L<Math::SimpleHisto::XS>.
