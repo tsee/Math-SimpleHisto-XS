@@ -41,13 +41,11 @@ sub new {
 # Generate bin-number-as-first-parameter delegation
 foreach my $methname (qw(
   bin_content set_bin_content
-  bin_center bin_lower_boundary bin_upper_boundary
-  fill_by_bin
 )) {
   my $sub = sub {
     my $self = shift;
     my $name = shift;
-    die "Invalid bin name '$name'" if not exists $self->{namehash}{$name};
+    croak("Invalid bin name '$name'") if not exists $self->{namehash}{$name};
     my $ibin = $self->{namehash}{$name};
     return $self->{hist}->$methname($ibin, @_);
   };
@@ -78,10 +76,12 @@ foreach my $methname (qw(clone new_alike)) {
 # Generate methods that croak because they make no sense
 # on named bins
 foreach my $methname (qw(
-  find_bin min max binsize
+  find_bin min max binsize width
   new_from_bin_range new_alike_from_bin_range
   integral
   rand
+  bin_center bin_lower_boundary bin_upper_boundary
+  bin_centers bin_lower_boundaries bin_upper_boundaries
 )) {
   my $sub = sub {
     croak("The '$methname' method makes little sense for named bins");
@@ -108,6 +108,8 @@ sub fill {
   }
   return $hist->fill($x, defined($w) ? ($w) : ());
 }
+
+*fill_by_bin = \&fill;
 
 sub get_bin_names {
   return @{ $_[0]->{names} };
@@ -165,6 +167,24 @@ sub new_from_dump {
   return bless($struct => $class);
 }
 
+# Can't simply be delegated, eventhough the implementation is the same :(
+sub STORABLE_freeze {
+  my $self = shift;
+  my $cloning = shift;
+  my $serialized = $self->dump('simple');
+  return $serialized;
+}
+
+# Can't simply be delegated, eventhough the implementation is the same :(
+sub STORABLE_thaw {
+  my $self = shift;
+  my $cloning = shift;
+  my $serialized = shift;
+  my $new = ref($self)->new_from_dump('simple', $serialized);
+  $$self = $$new;
+  $new = undef; # need to care about DESTROY here, normally
+}
+
 sub DESTROY {}
 
 1;
@@ -200,9 +220,82 @@ at its internal coordinates or bin numbering.
 
 =head1 API DIFFERENCES TO Math::SimpleHisto::XS
 
-=head2 Constructor
+=head2 Constructors
 
-The regular constructor, C<new> requires one parameter only: The
+The regular constructor, C<new> requires one named parameter: C<names>,
+an array reference of bin names.
+
+The C<clone>, C<new_alike> methods work the same as with C<Math::SimpleHisto::XS>,
+but the C<new_from_bin_range>, and C<new_alike_from_bin_range> methods are B<not>
+implemented for named histograms.
+
+=head2 Filling Histograms
+
+The C<fill()> method normally takes any of the following parameters:
+
+=over 2
+
+=item *
+
+A single coordinate to fill into the histogram
+
+=item *
+
+A single coordinate followed by a single weight
+
+=item *
+
+An array reference containing coordinates to fill
+into the histogram
+
+=item *
+
+Two array references of the same array length, the
+first of which contains coordinates, the second of which
+contains the respective weights
+
+=back
+
+The C<fill()> method has been overridden in such a way that wherever
+the interface normally calls for coordinates, you need to pass in bin
+names instead.
+
+Effectively, that means C<fill> works much like C<fill_by_bin> for named
+histograms.
+
+=head2 Additional Methods
+
+This class provides a C<get_bin_names()> method which returns
+a list of bin names in storage order.
+
+=head2 Unimplemented Methods
+
+Apart from the aforementioned C<new_from_bin_range> and C<new_alike_from_bin_range>
+methods, the following are not implemented, generally, because they do not
+apply to named bins:
+
+C<find_bin>, C<min>, C<max>, C<binsize>, C<width>, C<integral>, C<rand>
+C<bin_center>, C<bin_lower_boundary>, C<bin_upper_boundary>,
+C<bin_centers>, C<bin_lower_boundaries>, C<bin_upper_boundaries>
+
+=head2 Methods With Bin Number Parameters
+
+Methods that normally take a bin number as the first parameter,
+require a bin name instead. These are:
+
+C<bin_content>, C<set_bin_content>, C<fill_by_bin>.
+
+=head2 Serialization
+
+This class implements the C<dump()> and C<new_from_dump()> methods
+of the C<Math::SimpleHisto::XS> interface by wrapping the histogram dump
+in JSON which contains the additional information.
+
+If you always stick to using C<dump()> and C<new_from_dump()>, then this
+is an implementation details that should not matter to your code.
+
+The C<Storable> freeze/thaw hooks are delegated to the C<Math::SimpleHisto::XS>
+implementation and should work as is.
 
 =head1 SEE ALSO
 
