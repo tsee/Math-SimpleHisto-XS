@@ -14,21 +14,29 @@ sub is_approx {
 }
 
 
-sub histo_eq_test_no { 11 + scalar(@{$_[0]->bin_centers})*2 }
+sub histo_eq_test_no {
+  my $hist = shift;
+  my $is_named = $hist->isa("Math::SimpleHisto::XS::Named");
+  ($is_named ? 7 : 11) + scalar(@{$hist->bin_centers})*2;
+}
 
 sub histo_eq {
   my ($ref, $test, $name) = @_;
   $name = "hist. compare" if not defined $name;
 
-  Test::More::is($test->min, $ref->min, "min is the same ($name)");
-  Test::More::is($test->max, $ref->max, "max is the same ($name)");
+  my $is_named = $test->isa("Math::SimpleHisto::XS::Named");
+
+  if (not $is_named) {
+    Test::More::is($test->min, $ref->min, "min is the same ($name)");
+    Test::More::is($test->max, $ref->max, "max is the same ($name)");
+    is_approx($test->width, $ref->width, "width is the same ($name)");
+    is_approx($test->binsize, $ref->binsize, "binsize is the same ($name)");
+  }
   Test::More::is($test->nbins, $ref->nbins, "nbins is the same ($name)");
   Test::More::is($test->nfills, $ref->nfills, "nbins is the same ($name)");
   is_approx($test->overflow, $ref->overflow, "overflow is the same ($name)");
   is_approx($test->underflow, $ref->underflow, "underflow is the same ($name)");
   is_approx($test->total, $ref->total, "total is the same ($name)");
-  is_approx($test->width, $ref->width, "width is the same ($name)");
-  is_approx($test->binsize, $ref->binsize, "binsize is the same ($name)");
 
   my $ref_content = $ref->all_bin_contents();
   my $ref_centers = $ref->bin_centers();
