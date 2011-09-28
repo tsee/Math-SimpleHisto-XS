@@ -272,6 +272,19 @@ sub STORABLE_thaw {
   $new = undef;
 }
 
+sub to_soot {
+  my ($self, $name, $title) = @_;
+  $name = '' if not defined $name;
+  $title = '' if not defined $title;
+
+  require SOOT;
+  my $th1d = TH1D->new($name, $title, $self->nbins, $self->min, $self->max);
+  $th1d->SetBinContent($_, $self->bin_content($_-1)) for 1..$self->nbins;
+  $th1d->SetEntries($self->nfills);
+
+  return $th1d;
+}
+
 1;
 __END__
 
