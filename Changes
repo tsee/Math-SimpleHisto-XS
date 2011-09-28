@@ -1,5 +1,10 @@
 Revision history for Perl extension Math::SimpleHisto::XS.
 
+1.21  Wed Sep 28 21:55:00 2011
+  - to_soot() method will create a SOOT TH1D object from the
+    Math::SimpleHisto::XS histogram IF the optional SOOT library
+    is available.
+
 1.20  Tue Sep 27 17:43:00 2011
   - Include Math::SimpleHisto::XS::Named implementing histograms with
     named bins.
