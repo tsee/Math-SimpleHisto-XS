@@ -64,9 +64,11 @@ is_approx($hclone->total, $hclone->bin_content("foo")+$hclone->bin_content("bar"
 histo_eq($h->clone, $h, "clone equal");
 
 # test dump/load
-my $dump = $h->dump('simple');
-my $dumpclone = Math::SimpleHisto::XS::Named->new_from_dump('simple', $dump);
+if (defined $Math::SimpleHisto::XS::JSON) {
+  my $dump = $h->dump('simple');
+  my $dumpclone = Math::SimpleHisto::XS::Named->new_from_dump('simple', $dump);
 
-histo_eq($dumpclone, $h, "dump clone equal");
+  histo_eq($dumpclone, $h, "dump clone equal");
+}
 
 done_testing;
