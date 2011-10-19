@@ -1,5 +1,8 @@
 Revision history for Perl extension Math::SimpleHisto::XS.
 
+1.23  Wed Oct 19 13:10:00 2011
+  - No functional changes
+
 1.22  Wed Sep 28 21:55:00 2011
   - Fix t/80named.t if there's no JSON implementation.
 
