@@ -1,5 +1,6 @@
 # Avoid archives of this distribution
 \bMath-SimpleHisto-XS-[\d\.\_]+
+\bMYMETA\.[^.]+$
 
 # Avoid version control files.
 \bRCS\b
