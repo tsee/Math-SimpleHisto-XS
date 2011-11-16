@@ -71,7 +71,7 @@ $hclone->set_bin_content(0, 23.4);
 SCOPE: {
   my $hcloneclone = $hclone->clone;
   $hcloneclone->add_histogram($h);
-  foreach my $meth (qw(total overflow underflow)) {
+  foreach my $meth (qw(total overflow underflow nfills)) {
     is_approx($hcloneclone->$meth, $hclone->$meth + $h->$meth);
   }
   foreach my $i (0..$h->nbins-1) {

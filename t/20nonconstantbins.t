@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 169;
+use Test::More tests => 170;
 BEGIN { use_ok('Math::SimpleHisto::XS') };
 
 use lib 't/lib', 'lib';
@@ -35,7 +35,7 @@ SCOPE: {
   $hclone->set_bin_content(0, 23.4);
   my $hcloneclone = $hclone->clone;
   $hcloneclone->add_histogram($h);
-  foreach my $meth (qw(total overflow underflow)) {
+  foreach my $meth (qw(total overflow underflow nfills)) {
     is_approx($hcloneclone->$meth, $hclone->$meth + $h->$meth);
   }
   foreach my $i (0..$h->nbins-1) {
