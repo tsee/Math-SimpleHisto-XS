@@ -132,6 +132,13 @@ histo_cumulative(pTHX_ simple_histo_1d* src, double prenormalization);
 void
 histo_multiply_constant(simple_histo_1d* self, double constant);
 
+/* Add the contents of one histogram (to_add) to another (target).
+ * Works only if the histograms have exactly the same binning and
+ * are otherwise compatible. Returns whether the addition has been
+ * performed or not. */
+bool
+histo_add_histogram(simple_histo_1d* target, simple_histo_1d* to_add);
+
 /* Implements the binary search logic for locating the bin that a given
  * value falls into */
 unsigned int

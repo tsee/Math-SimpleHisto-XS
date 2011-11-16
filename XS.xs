@@ -32,6 +32,7 @@
   } STMT_END
 
 
+/* The following couple of lines are for the RNG, taken from Math::Random::MT */
 typedef struct mt* Math__SimpleHisto__XS__RNG;
 
 void*
@@ -71,6 +72,17 @@ multiply_constant(self, factor = 1.)
       croak("Cannot multiply histogram with negative value %f", factor);
     histo_multiply_constant(self, factor);
 
+void
+add_histogram(self, to_add)
+    simple_histo_1d* self
+    simple_histo_1d* to_add
+  PREINIT:
+    bool added_ok;
+  CODE:
+    added_ok = histo_add_histogram(self, to_add);
+    if (!added_ok) {
+      croak("Failed to add incompatible histogram. Binning not the same?");
+    }
 
 void
 normalize(self, normalization = 1.)

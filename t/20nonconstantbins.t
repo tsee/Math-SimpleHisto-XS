@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 156;
+use Test::More tests => 169;
 BEGIN { use_ok('Math::SimpleHisto::XS') };
 
 use lib 't/lib', 'lib';
@@ -28,6 +28,20 @@ foreach my $i (0..$n-1) {
   is_approx($h->bin_center($i), 0.5*($bins->[$i]+$bins->[$i+1]), "bin center $i");
 }
 
+# test addition
+# Test addition
+SCOPE: {
+  my $hclone = $h->clone;
+  $hclone->set_bin_content(0, 23.4);
+  my $hcloneclone = $hclone->clone;
+  $hcloneclone->add_histogram($h);
+  foreach my $meth (qw(total overflow underflow)) {
+    is_approx($hcloneclone->$meth, $hclone->$meth + $h->$meth);
+  }
+  foreach my $i (0..$h->nbins-1) {
+    is_approx($hcloneclone->bin_content($i), $hclone->bin_content($i) + $h->bin_content($i));
+  }
+}
 
 #diag(join(" ", @$bins));
 $h->fill([-1.2, 7.9, 1.1, 5.1, 20., 14.13, 81.]);

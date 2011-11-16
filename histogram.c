@@ -360,3 +360,60 @@ histo_multiply_constant(simple_histo_1d* self, double constant)
   self->underflow *= constant;
 }
 
+#define MY_FLOAT_EQ_EPS(a, b, eps) ((a) + (eps) > (b) && (a) - (eps) < (b))
+#define MY_FLOAT_EQ(a, b) (MY_FLOAT_EQ_EPS(a, b, 1.e-12))
+
+#define MY_FLOAT_NE_EPS(a, b, eps) ((a) + (eps) <= (b) || (a) - (eps) >= (b))
+#define MY_FLOAT_NE(a, b) (MY_FLOAT_NE_EPS(a, b, 1.e-12))
+
+bool
+histo_add_histogram(simple_histo_1d* target, simple_histo_1d* to_add)
+{
+  unsigned int i, n;
+  double *d_target;
+  double *d_to_add;
+
+  /* we're optimistic */
+  n = target->nbins;
+
+  if (target->bins == NULL) {
+    /* fixed bins */
+    if ( to_add->bins != NULL
+         || target->nbins != target->nbins
+         || MY_FLOAT_NE(target->min, to_add->min)
+         || MY_FLOAT_NE(target->max, to_add->max) )
+      return 0;
+  }
+  else { /* variable bins */
+    if ( to_add->bins == NULL 
+          || target->nbins != to_add->nbins)
+      return 0;
+
+    /* abuse double*'s a bit */
+    d_target = target->bins;
+    d_to_add = to_add->bins;
+
+    for (i = 0; i < n; ++i) {
+      if (MY_FLOAT_NE(d_target[i], d_to_add[i])) {
+        printf("%u\n", i);
+        return 0;
+      }
+    }
+  }
+
+  HS_INVALIDATE_CUMULATIVE(target); /* Adding invalidates the cache. */
+
+  d_target = target->data;
+  d_to_add = to_add->data;
+
+  for (i = 0; i < n; ++i)
+    d_target[i] += d_to_add[i];
+
+  target->total     += to_add->total;
+  target->overflow  += to_add->overflow;
+  target->underflow += to_add->underflow;
+  target->nfills    += to_add->nfills;
+
+  return 1;
+}
+

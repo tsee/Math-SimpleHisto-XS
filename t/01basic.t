@@ -66,6 +66,19 @@ is($hclone->total, 0, "new_alike returns fresh object");
 is_approx($hclone->overflow, 0, "new_alike returns fresh object");
 is_approx($hclone->underflow, 0, "new_alike returns fresh object");
 
+# Test addition
+$hclone->set_bin_content(0, 23.4);
+SCOPE: {
+  my $hcloneclone = $hclone->clone;
+  $hcloneclone->add_histogram($h);
+  foreach my $meth (qw(total overflow underflow)) {
+    is_approx($hcloneclone->$meth, $hclone->$meth + $h->$meth);
+  }
+  foreach my $i (0..$h->nbins-1) {
+    is_approx($hcloneclone->bin_content($i), $hclone->bin_content($i) + $h->bin_content($i));
+  }
+}
+
 SCOPE: {
   my $exp = [map $_/10, 0..9];
   my $c = $h->bin_centers();
