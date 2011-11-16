@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Carp qw(croak);
 
-our $VERSION = '1.23'; # Committed to floating point version numbers!
+our $VERSION = '1.24'; # Committed to floating point version numbers!
 
 require XSLoader;
 XSLoader::load('Math::SimpleHisto::XS', $VERSION);
@@ -510,6 +510,13 @@ C<$hist-E<gt>new_alike_from_bin_range($first_bin, $last_bin)>
 does the same, but resets all contents (like C<new_alike).
 
 =head1 CALCULATIONS
+
+=head2 C<add_histogram>
+
+Given another histogram object, this method will add the content of that
+object to the invocant's content. This works only if the binning of the
+histograms is exactly the same. Throws an exception if that is not
+the case.
 
 =head2 C<integral>
 

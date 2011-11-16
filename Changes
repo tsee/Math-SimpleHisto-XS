@@ -1,5 +1,9 @@
 Revision history for Perl extension Math::SimpleHisto::XS.
 
+1.24  Wed Nov 16 18:22:00 2011
+  - add_histogram($to_add) method that adds the contents of another
+    histogram to the invocant if the histogram have the same binning.
+
 1.23  Wed Oct 19 13:10:00 2011
   - No functional changes
 
