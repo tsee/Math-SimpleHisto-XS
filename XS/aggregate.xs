@@ -93,8 +93,6 @@ double
 mean(self)
     simple_histo_1d* self
   CODE:
-    if (self->nfills == 0)
-      XSRETURN_UNDEF;
     RETVAL = histo_mean(aTHX_ self);
   OUTPUT: RETVAL
 
@@ -103,8 +101,6 @@ median(self)
     simple_histo_1d* self
   PREINIT:
   CODE:
-    if (self->nfills == 0)
-      XSRETURN_UNDEF;
     RETVAL = histo_median(aTHX_ self);
   OUTPUT: RETVAL
 
@@ -118,8 +114,6 @@ median_absolute_deviation(self, ...)
     unsigned int i, n;
     simple_histo_1d* madhist;
   CODE:
-    if (self->nfills == 0)
-      XSRETURN_UNDEF;
     
     if (items == 2)
       median = SvNV(ST(1));

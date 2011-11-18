@@ -9,9 +9,6 @@ histo_mean(pTHX_ simple_histo_1d* self)
   unsigned int i, n;
   double retval = 0.;
   
-  if (!self->nfills)
-    return 0.;
-  
   data = self->data;
   n = self->nbins;
   if (self->bins == NULL) {
