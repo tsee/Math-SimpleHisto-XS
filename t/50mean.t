@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 13;
+use Test::More tests => 15;
 BEGIN { use_ok('Math::SimpleHisto::XS') };
 
 use lib 't/lib', 'lib';
@@ -33,3 +33,6 @@ $h->fill(8, 10000000);
 is_approx($h->mean(), 8, "mean test 4", 1e-4);
 is_approx($h->median(), 8, "median test 4", 1e-2);
 
+$h->set_nfills(0);
+is_approx($h->mean(), 8, "mean test 5", 1e-4);
+is_approx($h->median(), 8, "median test 5", 1e-2);
