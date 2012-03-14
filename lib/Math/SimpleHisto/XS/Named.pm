@@ -194,7 +194,7 @@ __END__
 
 =head1 NAME
 
-Math::SimpleHisto::XS - Simple histogramming, but kinda fast
+Math::SimpleHisto::XS::Named - Named histograms for Math::SimpleHisto::XS
 
 =head1 SYNOPSIS
 
