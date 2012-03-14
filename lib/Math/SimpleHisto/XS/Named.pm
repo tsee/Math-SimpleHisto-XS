@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Math::SimpleHisto::XS;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use vars qw($AUTOLOAD);
 use Carp qw(croak);
@@ -313,7 +313,7 @@ Steffen Mueller, E<lt>smueller@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2011 by Steffen Mueller
+Copyright (C) 2011,2012 by Steffen Mueller
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.1 or,

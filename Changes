@@ -1,5 +1,9 @@
 Revision history for Perl extension Math::SimpleHisto::XS.
 
+1.26  Wed Mar 14 21:00:00 2012
+  - Fix Math::SimpleHisto::XS::Named documentation to refer to the right
+    namespace.
+
 1.25  Fri Nov 18 13:34:00 2011
   - Do not check 'nfills == 0' in various aggregate functions
     since it might have been dropped somewhere and the histogram might
