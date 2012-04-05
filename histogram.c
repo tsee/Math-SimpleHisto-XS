@@ -361,10 +361,10 @@ histo_multiply_constant(simple_histo_1d* self, double constant)
 }
 
 #define MY_FLOAT_EQ_EPS(a, b, eps) ((a) + (eps) > (b) && (a) - (eps) < (b))
-#define MY_FLOAT_EQ(a, b) (MY_FLOAT_EQ_EPS(a, b, 1.e-12))
+#define MY_FLOAT_EQ(a, b) (MY_FLOAT_EQ_EPS(a, b, 1.e-9))
 
 #define MY_FLOAT_NE_EPS(a, b, eps) ((a) + (eps) <= (b) || (a) - (eps) >= (b))
-#define MY_FLOAT_NE(a, b) (MY_FLOAT_NE_EPS(a, b, 1.e-12))
+#define MY_FLOAT_NE(a, b) (MY_FLOAT_NE_EPS(a, b, 1.e-9))
 
 bool
 histo_add_histogram(simple_histo_1d* target, simple_histo_1d* to_add)
@@ -381,13 +381,15 @@ histo_add_histogram(simple_histo_1d* target, simple_histo_1d* to_add)
     if ( to_add->bins != NULL
          || target->nbins != target->nbins
          || MY_FLOAT_NE(target->min, to_add->min)
-         || MY_FLOAT_NE(target->max, to_add->max) )
+         || MY_FLOAT_NE(target->max, to_add->max) ) {
       return 0;
+    }
   }
   else { /* variable bins */
     if ( to_add->bins == NULL 
-          || target->nbins != to_add->nbins)
+          || target->nbins != to_add->nbins) {
       return 0;
+    }
 
     /* abuse double*'s a bit */
     d_target = target->bins;
@@ -395,7 +397,7 @@ histo_add_histogram(simple_histo_1d* target, simple_histo_1d* to_add)
 
     for (i = 0; i < n; ++i) {
       if (MY_FLOAT_NE(d_target[i], d_to_add[i])) {
-        printf("%u\n", i);
+        printf("%u: %.12f %.12f\n", i, d_target[i], d_to_add[i]);
         return 0;
       }
     }

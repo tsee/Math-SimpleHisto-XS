@@ -1,5 +1,8 @@
 Revision history for Perl extension Math::SimpleHisto::XS.
 
+1.27  Thu Apr  5 14:00:00 2012
+  - add_histogram floating point comparison workaround.
+
 1.26  Wed Mar 14 21:00:00 2012
   - Fix Math::SimpleHisto::XS::Named documentation to refer to the right
     namespace.
