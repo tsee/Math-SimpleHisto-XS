@@ -1,5 +1,7 @@
 Revision history for Perl extension Math::SimpleHisto::XS.
 
+  - Embed blob length in native pack format.
+
 1.27  Thu Apr  5 14:00:00 2012
   - add_histogram floating point comparison workaround.
 

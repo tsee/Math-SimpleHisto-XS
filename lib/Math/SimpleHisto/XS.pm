@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Carp qw(croak);
 
-our $VERSION = '1.27'; # Committed to floating point version numbers!
+our $VERSION = '1.28'; # Committed to floating point version numbers!
 
 require XSLoader;
 XSLoader::load('Math::SimpleHisto::XS', $VERSION);
@@ -81,6 +81,13 @@ sub AUTOLOAD {
 
 use constant _PACK_FLAG_VARIABLE_BINS => 0;
 
+my $native_pack_len;
+SCOPE: {
+  require bytes;
+  my $intlen = bytes::length(pack('I', 0));
+  $native_pack_len = 8 + 4 + 16 + 4 + $intlen*2 + 16;
+}
+
 sub dump {
   my $self = shift;
   my $type = shift;
@@ -122,11 +129,13 @@ sub dump {
   }
   elsif ($type eq 'native_pack') {
     my $flags = 0;
-    vec($flags, _PACK_FLAG_VARIABLE_BINS, 1) = $bins_ary?1:0;
+    vec($flags, _PACK_FLAG_VARIABLE_BINS, 1) = $bins_ary ? 1 : 0;
 
+    my $len = $native_pack_len + 8 * (scalar(@$data_ary) + scalar(@{$bins_ary || []}));
     return pack(
-      'd3 V I2 d2 d*',
+      'd V d2 V I2 d2 d*',
       $VERSION,
+      $len,
       $min, $max,
       $flags,
       $nbins,
@@ -208,12 +217,26 @@ sub new_from_dump {
     my $version = unpack('d', $dump);
     _check_version($version, 'native_pack');
     my $flags_support = $version >= 1.;
-    my $pack_str = $flags_support ? 'd3 V I2 d2 d*' : 'd3 I2 d2 d*';
+    my $prepended_length = $version >= 1.28;
+    my $ndoubles;
+
+    # We go through all this pain about the length and the number of elements in the packed
+    # dump because that'll allow us to prevent reading beyond the end of a given dump.
+    if ($prepended_length) {
+      (undef, my $len) = unpack('d V', $dump);
+      $len -= $native_pack_len;
+      $ndoubles = $len / 8;
+    }
+    my $pack_str = $flags_support
+                   ? ($prepended_length ? "d V d2 V I2 d2 d$ndoubles" : 'd3 V I2 d2 d*')
+                   : 'd3 I2 d2 d*';
+
     my @things = unpack($pack_str, $dump);
     $version = shift @things;
     $hashref = {version => $version};
 
-    foreach (qw(min max),
+    foreach (($prepended_length ? ('data_length') : ()),
+             qw(min max),
              ($flags_support ? ('flags') : ()),
              qw(nbins nfills overflow underflow))
     {
