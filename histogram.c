@@ -419,3 +419,66 @@ histo_add_histogram(simple_histo_1d* target, simple_histo_1d* to_add)
   return 1;
 }
 
+simple_histo_1d*
+histo_rebin(pTHX_ simple_histo_1d* self, unsigned int rebin_factor)
+{
+  unsigned int nbins_in = self->nbins;
+  simple_histo_1d* out = NULL;
+  unsigned int nbins_out = nbins_in / rebin_factor;
+  if ((nbins_in % rebin_factor) != 0)
+    return out;
+
+  if (self->bins == NULL) { /* fixed bins */
+    unsigned int i;
+    unsigned int j;
+    unsigned int end;
+    out = histo_alloc_new_fixed_bins(aTHX_ nbins_out, self->min, self->max);
+    for (i = 0; i < nbins_out; ++i) {
+      double content = 0.;
+      end = rebin_factor*(i+1);
+      for (j = rebin_factor*i; j < end; ++j)
+        content += self->data[j];
+      out->data[i] = content;
+    }
+  }
+  else {
+    unsigned int i;
+    unsigned int j;
+    unsigned int end;
+    double* bins_ary;
+    /* FIXME duplicated from XS/construction.xs -- needs refactoring */
+    Newx(out, 1, simple_histo_1d);
+    if( out == NULL ){
+      warn("unable to malloc simple_histo_1d");
+      return NULL;
+    }
+
+    out->nbins = nbins_out;
+    Newx(bins_ary, nbins_out+1, double);
+    out->bins = bins_ary;
+    Newxz(out->data, (int)nbins_out, double);
+
+    bins_ary[0] = self->bins[0];
+    for (i = 0; i < nbins_out; ++i) {
+      double content = 0.;
+      end = rebin_factor*(i+1);
+      for (j = rebin_factor*i; j < end; ++j)
+        content += self->data[j];
+      out->data[i] = content;
+      bins_ary[i+1] = self->bins[ end ];
+    }
+
+    out->min = self->min;
+    out->max = self->max;
+    out->width = out->max - out->min;
+    out->binsize = 0.;
+    out->cumulative_hist = 0;
+  }
+
+  out->overflow = self->overflow;
+  out->underflow = self->underflow;
+  out->total = self->total;
+  out->nfills = self->nfills;
+
+  return out;
+}

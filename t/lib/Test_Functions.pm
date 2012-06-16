@@ -1,4 +1,4 @@
-package
+package # hide from PAUSE
   Test_Functions;
 use strict;
 use warnings;

@@ -139,6 +139,14 @@ histo_multiply_constant(simple_histo_1d* self, double constant);
 bool
 histo_add_histogram(simple_histo_1d* target, simple_histo_1d* to_add);
 
+/* Rebin a given histogram to have 1/Nth as many bins.
+ * rebin_factor must divide the number of bins in the histogram without
+ * remainder. Returns a modified clone of the input histogram or NULL if
+ * the rebin_factor does not divide the number of bins in the input
+ * histogram. */
+simple_histo_1d*
+histo_rebin(pTHX_ simple_histo_1d* self, unsigned int rebin_factor);
+
 /* Implements the binary search logic for locating the bin that a given
  * value falls into */
 unsigned int

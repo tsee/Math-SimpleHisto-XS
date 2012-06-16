@@ -100,3 +100,17 @@ new_from_bin_range(self, bin_start, bin_end)
     RETVAL = histo_clone_from_bin_range(aTHX_ (simple_histo_1d*)SvIV((SV*)SvRV(self)), ix, bin_start, bin_end);
   OUTPUT: RETVAL
 
+simple_histo_1d*
+rebin(self, new_nbins)
+    SV *self;
+    unsigned int new_nbins;
+  PREINIT:
+    const char* CLASS;
+  INIT:
+    HS_CLONE_GET_CLASS(CLASS, self, rebin);
+  CODE:
+    RETVAL = histo_rebin(aTHX_ (simple_histo_1d*)SvIV((SV*)SvRV(self)), new_nbins);
+    if (RETVAL == NULL)
+      croak("Could not rebin histogram: New bin number not a divisor of the old");
+  OUTPUT: RETVAL
+

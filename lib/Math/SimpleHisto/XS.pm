@@ -534,6 +534,16 @@ does the same, but resets all contents (like C<new_alike>).
 
 =head1 CALCULATIONS
 
+=head2 C<rebin>
+
+Given a rebinning factor, clones the current histogram and modifies it to
+have C<$rebin_factor> times fewer bins. You can only rebin by factors
+that divide the number of bins of the input histogram.
+
+For example, you can rebin a histogram with 200 bins by a factor of 10.
+This results in a histogram with 20 bins. You cannot rebin the same histogram
+by a factor of 7 because 7 does not divide 200 without remainder.
+
 =head2 C<add_histogram>
 
 Given another histogram object, this method will add the content of that
