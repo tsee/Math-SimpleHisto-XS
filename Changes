@@ -1,5 +1,9 @@
 Revision history for Perl extension Math::SimpleHisto::XS.
 
+1.29  Thu Nov 21 19:48:00 2013
+  - Mac OS X fix (C99)
+
+1.28  Thu Jun 12 14:00:00 2012
   - Rebinning of histograms
   - Embed blob length in native pack format.
 
