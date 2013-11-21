@@ -21,6 +21,7 @@ t/02rand.t
 t/20nonconstantbins.t
 t/30cumulative.t
 t/40integral.t
+t/45rebin.t
 t/50mean.t
 t/60normalize.t
 t/70dumping.t
@@ -28,6 +29,8 @@ t/71dumpoldversions.t
 t/80named.t
 t/data/dumps.0.05.txt
 t/data/dumps.1.01.txt
+t/data/dumps.1.27.txt
+t/data/dumps.1.28.txt
 t/lib/Test_Functions.pm
 typemap
 XS.xs
