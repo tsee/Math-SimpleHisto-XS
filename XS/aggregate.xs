@@ -97,6 +97,16 @@ mean(self)
   OUTPUT: RETVAL
 
 double
+standard_deviation(self, ...)
+    simple_histo_1d* self
+  CODE:
+    if (items > 1)
+      RETVAL = histo_standard_deviation_with_mean(aTHX_ self, SvNV(ST(1)));
+    else
+      RETVAL = histo_standard_deviation(aTHX_ self);
+  OUTPUT: RETVAL
+
+double
 median(self)
     simple_histo_1d* self
   PREINIT:

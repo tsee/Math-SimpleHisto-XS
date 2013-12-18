@@ -574,6 +574,16 @@ Calculates the mean of the histogram contents.
 Note that the result is not usually the same as if you calculated
 the mean of the input data directly due to the effect of the binning.
 
+=head2 C<standard_deviation>
+
+Calculates the standard deviation of the histogram contents.
+
+Note that the result is not usually the same as if you calculated
+the std. dev. of the input data directly due to the effect of the binning.
+
+First parameter may be the previously calculated mean to avoid
+recalculating it. If not provided, it will be calculated on the fly.
+
 =head2 C<median>
 
 Calculates and returns the estimated median of the data in the

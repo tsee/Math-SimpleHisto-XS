@@ -8,7 +8,7 @@ histo_mean(pTHX_ simple_histo_1d* self)
   double* data;
   unsigned int i, n;
   double retval = 0.;
-  
+
   data = self->data;
   n = self->nbins;
   if (self->bins == NULL) {
@@ -65,3 +65,40 @@ histo_median(pTHX_ simple_histo_1d* self)
     return self->bins[median_bin] + (self->bins[median_bin+1] - self->bins[median_bin]) * x;
 }
 
+double
+histo_standard_deviation(pTHX_ simple_histo_1d* self)
+{
+  const double mean = histo_mean(aTHX_ self);
+  return histo_standard_deviation_with_mean(aTHX_ self, mean);
+}
+
+double
+histo_standard_deviation_with_mean(pTHX_ simple_histo_1d* self, double mean)
+{
+  /* sqrt( (1/n) * sum( x_i - x_mean )^2 ) */
+
+  double x;
+  double* data;
+  unsigned int i, n;
+  double retval = 0.;
+
+  data = self->data;
+  n = self->nbins;
+  if (self->bins == NULL) {
+    const double binsize = self->binsize;
+    x = self->min + 0.5*binsize;
+    for (i = 0; i < n; ++i) {
+      retval += data[i] * (x - mean) * (x - mean);
+      x += binsize;
+    }
+  }
+  else { /* non-constant binsize */
+    const double* bins = self->bins;
+    for (i = 0; i < n; ++i) {
+      x = 0.5*(bins[i] + bins[i+1]);
+      retval += data[i] * (x - mean) * (x - mean);
+    }
+  }
+
+  return sqrt(retval/(double)self->total);
+}
