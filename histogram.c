@@ -397,7 +397,6 @@ histo_add_histogram(simple_histo_1d* target, simple_histo_1d* to_add)
 
     for (i = 0; i < n; ++i) {
       if (MY_FLOAT_NE(d_target[i], d_to_add[i])) {
-        printf("%u: %.12f %.12f\n", i, d_target[i], d_to_add[i]);
         return 0;
       }
     }
