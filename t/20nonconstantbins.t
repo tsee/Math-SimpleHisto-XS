@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 170;
+use Test::More;
 BEGIN { use_ok('Math::SimpleHisto::XS') };
 
 use lib 't/lib', 'lib';
@@ -28,7 +28,6 @@ foreach my $i (0..$n-1) {
   is_approx($h->bin_center($i), 0.5*($bins->[$i]+$bins->[$i+1]), "bin center $i");
 }
 
-# test addition
 # Test addition
 SCOPE: {
   my $hclone = $h->clone;
@@ -36,10 +35,25 @@ SCOPE: {
   my $hcloneclone = $hclone->clone;
   $hcloneclone->add_histogram($h);
   foreach my $meth (qw(total overflow underflow nfills)) {
-    is_approx($hcloneclone->$meth, $hclone->$meth + $h->$meth);
+    is_approx($hcloneclone->$meth, $hclone->$meth + $h->$meth, "addition: $meth");
   }
   foreach my $i (0..$h->nbins-1) {
     is_approx($hcloneclone->bin_content($i), $hclone->bin_content($i) + $h->bin_content($i));
+  }
+}
+
+# Test subtraction
+SCOPE: {
+  my $hclone = $h->clone;
+  $hclone->set_bin_content(0, 23.4);
+  my $hcloneclone = $hclone->clone;
+  $hcloneclone->subtract_histogram($h);
+  foreach my $meth (qw(total overflow underflow)) {
+    is_approx($hcloneclone->$meth, $hclone->$meth - $h->$meth, "subtraction: $meth");
+  }
+  is_approx($hcloneclone->nfills, $hclone->nfills + $h->nfills, "subtraction: nfills");
+  foreach my $i (0..$h->nbins-1) {
+    is_approx($hcloneclone->bin_content($i), $hclone->bin_content($i) - $h->bin_content($i));
   }
 }
 
@@ -157,3 +171,5 @@ for (@tests) {
   my ($x, $ibin) = @$_;
   is($h->find_bin($x), $ibin, "find_bin: $x ==> $ibin");
 }
+
+done_testing();

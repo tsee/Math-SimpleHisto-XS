@@ -73,15 +73,26 @@ multiply_constant(self, factor = 1.)
     histo_multiply_constant(self, factor);
 
 void
-add_histogram(self, to_add)
+add_histogram(self, operand)
     simple_histo_1d* self
-    simple_histo_1d* to_add
+    simple_histo_1d* operand
+  ALIAS:
+    subtract_histogram = 1
   PREINIT:
-    bool added_ok;
+    bool ok;
   CODE:
-    added_ok = histo_add_histogram(self, to_add);
-    if (!added_ok) {
-      croak("Failed to add incompatible histogram. Binning not the same?");
+    if (ix == 0)
+      ok = histo_add_histogram(self, operand);
+    else
+      ok = histo_subtract_histogram(self, operand);
+
+    if (!ok) {
+      char *reason;
+      if (ix == 0)
+        reason = "add";
+      else
+        reason = "subtract";
+      croak("Failed to %s incompatible histogram. Binning not the same?", reason);
     }
 
 void

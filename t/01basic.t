@@ -79,6 +79,21 @@ SCOPE: {
   }
 }
 
+# Test subtraction
+$hclone->set_bin_content(0, 23.4);
+SCOPE: {
+  my $hcloneclone = $hclone->clone;
+  $hcloneclone->subtract_histogram($h);
+  foreach my $meth (qw(total overflow underflow)) {
+    is_approx($hcloneclone->$meth, $hclone->$meth - $h->$meth, "subtraction: $meth");
+  }
+  is_approx($hcloneclone->nfills, $hclone->nfills + $h->nfills, "subtraction: nfills");
+
+  foreach my $i (0..$h->nbins-1) {
+    is_approx($hcloneclone->bin_content($i), $hclone->bin_content($i) - $h->bin_content($i));
+  }
+}
+
 SCOPE: {
   my $exp = [map $_/10, 0..9];
   my $c = $h->bin_centers();

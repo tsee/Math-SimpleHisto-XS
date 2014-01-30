@@ -366,8 +366,8 @@ histo_multiply_constant(simple_histo_1d* self, double constant)
 #define MY_FLOAT_NE_EPS(a, b, eps) ((a) + (eps) <= (b) || (a) - (eps) >= (b))
 #define MY_FLOAT_NE(a, b) (MY_FLOAT_NE_EPS(a, b, 1.e-9))
 
-bool
-histo_add_histogram(simple_histo_1d* target, simple_histo_1d* to_add)
+STATIC bool
+S_add_sub_histogram(simple_histo_1d* target, simple_histo_1d* to_add, double factor)
 {
   unsigned int i, n;
   double *d_target;
@@ -402,21 +402,35 @@ histo_add_histogram(simple_histo_1d* target, simple_histo_1d* to_add)
     }
   }
 
-  HS_INVALIDATE_CUMULATIVE(target); /* Adding invalidates the cache. */
+  /* Adding histograms invalidates the cache. */
+  HS_INVALIDATE_CUMULATIVE(target);
 
   d_target = target->data;
   d_to_add = to_add->data;
 
   for (i = 0; i < n; ++i)
-    d_target[i] += d_to_add[i];
+    d_target[i] += d_to_add[i] * factor;
 
-  target->total     += to_add->total;
-  target->overflow  += to_add->overflow;
-  target->underflow += to_add->underflow;
+  target->total     += to_add->total * factor;
+  target->overflow  += to_add->overflow * factor;
+  target->underflow += to_add->underflow * factor;
   target->nfills    += to_add->nfills;
 
   return 1;
 }
+
+bool
+histo_add_histogram(simple_histo_1d* target, simple_histo_1d* to_add)
+{
+  return S_add_sub_histogram(target, to_add, 1.);
+}
+
+bool
+histo_subtract_histogram(simple_histo_1d* target, simple_histo_1d* to_add)
+{
+  return S_add_sub_histogram(target, to_add, -1.);
+}
+
 
 simple_histo_1d*
 histo_rebin(pTHX_ simple_histo_1d* self, unsigned int rebin_factor)

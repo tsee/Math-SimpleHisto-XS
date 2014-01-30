@@ -551,6 +551,13 @@ object to the invocant's content. This works only if the binning of the
 histograms is exactly the same. Throws an exception if that is not
 the case.
 
+=head2 C<subtract_histogram>
+
+Given another histogram object, this method will subtract the content of that
+object from the invocant's content. This works only if the binning of the
+histograms is exactly the same. Throws an exception if that is not
+the case.
+
 =head2 C<integral>
 
 Returns the integral over the histogram. I<Very limited at this point>. Usage:
@@ -770,7 +777,7 @@ Steffen Mueller, E<lt>smueller@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2011, 2012, 2013 by Steffen Mueller
+Copyright (C) 2011, 2012, 2013, 2014 by Steffen Mueller
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.1 or,
