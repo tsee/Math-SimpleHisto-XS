@@ -22,7 +22,7 @@ is_approx($h->median_absolute_deviation($h->median), $h->median_absolute_deviati
   $hclone->fill(2, 10);
   is_approx($hclone->mean(), 2, "mean test 2", 1e-4);
   is_approx($hclone->median, 2, "median test 2", 1e-3);
-  is_approx($hclone->standard_deviation, 0.816496580928543, "std. dev. test 2", 1e-2);
+  is_approx($hclone->standard_deviation, sqrt(2/13), "std. dev. test 2", 1e-2);
   is_approx($hclone->median_absolute_deviation, 0., "mad test 2", 1e-2); # TODO debug and review
   is_approx($hclone->median_absolute_deviation($hclone->median), $hclone->median_absolute_deviation, "mad consistency test 2", 1e-4);
 }
