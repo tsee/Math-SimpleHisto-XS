@@ -1,5 +1,9 @@
 Revision history for Perl extension Math::SimpleHisto::XS.
 
+  - Histogram subtraction, multiplication, division
+  - Optimizations for histogram filling
+  - Standard deviation
+
 1.29  Thu Nov 21 19:48:00 2013
   - Mac OS X fix (C99)
 
