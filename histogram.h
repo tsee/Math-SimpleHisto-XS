@@ -139,6 +139,18 @@ histo_multiply_constant(simple_histo_1d* self, double constant);
 bool
 histo_add_histogram(simple_histo_1d* target, simple_histo_1d* to_add);
 
+/* Symmetric to histo_add_histogram: h1_i -= h2_i. */
+bool
+histo_subtract_histogram(simple_histo_1d* target, simple_histo_1d* to_subtract);
+
+/* Symmetric to histo_add_histogram: h1_i *= h2_i. */
+bool
+histo_multiply_histogram(simple_histo_1d* target, simple_histo_1d* to_multiply);
+
+/* Symmetric to histo_add_histogram: h1_i /= h2_i. */
+bool
+histo_divide_histogram(simple_histo_1d* target, simple_histo_1d* to_divide);
+
 /* Rebin a given histogram to have 1/Nth as many bins.
  * rebin_factor must divide the number of bins in the histogram without
  * remainder. Returns a modified clone of the input histogram or NULL if

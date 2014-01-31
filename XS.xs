@@ -78,20 +78,30 @@ add_histogram(self, operand)
     simple_histo_1d* operand
   ALIAS:
     subtract_histogram = 1
+    multiply_histogram = 2
+    divide_histogram = 3
   PREINIT:
     bool ok;
   CODE:
     if (ix == 0)
       ok = histo_add_histogram(self, operand);
-    else
+    else if (ix == 1)
       ok = histo_subtract_histogram(self, operand);
+    else if (ix == 2)
+      ok = histo_multiply_histogram(self, operand);
+    else
+      ok = histo_divide_histogram(self, operand);
 
     if (!ok) {
       char *reason;
       if (ix == 0)
         reason = "add";
-      else
+      else if (ix == 1)
         reason = "subtract";
+      else if (ix == 2)
+        reason = "multiply";
+      else
+        reason = "divide";
       croak("Failed to %s incompatible histogram. Binning not the same?", reason);
     }
 

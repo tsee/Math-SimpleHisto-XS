@@ -80,7 +80,6 @@ SCOPE: {
 }
 
 # Test subtraction
-$hclone->set_bin_content(0, 23.4);
 SCOPE: {
   my $hcloneclone = $hclone->clone;
   $hcloneclone->subtract_histogram($h);
@@ -92,6 +91,45 @@ SCOPE: {
   foreach my $i (0..$h->nbins-1) {
     is_approx($hcloneclone->bin_content($i), $hclone->bin_content($i) - $h->bin_content($i));
   }
+}
+
+# Test multiplication
+SCOPE: {
+  my $hcloneclone = $hclone->clone;
+  $hcloneclone->multiply_histogram($h);
+  foreach my $meth (qw(overflow underflow)) {
+    is_approx($hcloneclone->$meth, $hclone->$meth * $h->$meth, "multiplication: $meth");
+  }
+
+  my $total = 0.;
+  foreach my $i (0..$h->nbins-1) {
+    my $x = $hclone->bin_content($i) * $h->bin_content($i);
+    $total += $x;
+    is_approx($hcloneclone->bin_content($i), $x, "multiplication: bin $i");
+  }
+  is_approx($hcloneclone->nfills, $hclone->nfills + $h->nfills, "multiplication: nfills");
+  is_approx($hcloneclone->total, $total, "multiplication: total");
+}
+
+# Test division
+SCOPE: {
+  my $hcloneclone = $hclone->clone;
+  my $h = $hclone->clone;
+  $h->fill($_) for map 0.05 + $_/10, -2..11;
+
+  $hcloneclone->divide_histogram($h);
+  foreach my $meth (qw(overflow underflow)) {
+    is_approx($hcloneclone->$meth, $hclone->$meth / $h->$meth, "division: $meth");
+  }
+
+  my $total = 0.;
+  foreach my $i (0..$h->nbins-1) {
+    my $x = eval {$hclone->bin_content($i) / $h->bin_content($i)};
+    $total += $x;
+    is_approx($hcloneclone->bin_content($i), $x, "division: bin $i");
+  }
+  is_approx($hcloneclone->nfills, $hclone->nfills + $h->nfills, "division: nfills");
+  is_approx($hcloneclone->total, $total, "division: total");
 }
 
 SCOPE: {
