@@ -132,7 +132,7 @@ fill(self, ...)
         Newx(x, n+1, double);
         for (i = 0; i <= n; ++i) {
           sv = av_fetch(av, i, 0);
-          if (sv == NULL) {
+          if (UNLIKELY( sv == NULL )) {
             Safefree(x);
             croak("Shouldn't happen");
           }
@@ -156,13 +156,13 @@ fill(self, ...)
         SV** sv;
         double *x, *w;
         AV *xav, *wav;
-        if (!SvROK(w_tmp) || SvTYPE(SvRV(x_tmp)) != SVt_PVAV) {
+        if (UNLIKELY( !SvROK(w_tmp) || SvTYPE(SvRV(x_tmp)) != SVt_PVAV )) {
           croak("Need array of weights if using array of x values");
         }
         xav = (AV*)SvRV(x_tmp);
         wav = (AV*)SvRV(w_tmp);
         n = av_len(xav);
-        if (av_len(wav) != n) {
+        if (UNLIKELY( av_len(wav) != n )) {
           croak("x and w array lengths differ");
         }
 
@@ -170,7 +170,7 @@ fill(self, ...)
         Newx(w, n+1, double);
         for (i = 0; i <= n; ++i) {
           sv = av_fetch(xav, i, 0);
-          if (sv == NULL) {
+          if (UNLIKELY( sv == NULL )) {
             Safefree(x);
             Safefree(w);
             croak("Shouldn't happen");
@@ -178,7 +178,7 @@ fill(self, ...)
           x[i] = SvNV(*sv);
 
           sv = av_fetch(wav, i, 0);
-          if (sv == NULL) {
+          if (UNLIKELY( sv == NULL )) {
             Safefree(x);
             Safefree(w);
             croak("Shouldn't happen");

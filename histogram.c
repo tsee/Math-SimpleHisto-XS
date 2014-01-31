@@ -241,36 +241,76 @@ void
 histo_fill(simple_histo_1d* self, unsigned int n, const double* x_in, const double* w_in)
 {
   unsigned int i;
-  double min = self->min, max = self->max, binsize = self->binsize, x, w;
+  double min = self->min, max = self->max, binsize = self->binsize, x;
   double *data = self->data;
   double *bins = self->bins;
 
   HS_INVALIDATE_CUMULATIVE(self);
 
-  for (i = 0; i < n; ++i) {
-    self->nfills++;
-    x = x_in[i];
+  /* Code duplication for performance */
+#define HANDLE_OVERFLOW \
+      if (UNLIKELY( x >= max )) { \
+        self->overflow += w; \
+        continue; \
+      } \
+      else if (UNLIKELY( x < min )) { \
+        self->underflow += w; \
+        continue; \
+      }
 
-    if (w_in == NULL) w = 1;
-    else              w = w_in[i];
-
-    if (x >= max) {
-      self->overflow += w;
-      continue;
-    }
-    else if (x < min) {
-      self->underflow += w;
-      continue;
-    }
-
-    self->total += w;
+  if (w_in == NULL) {
+    const double w = 1;
     if (bins == NULL) {
-      data[(int)((x-min)/binsize)] += w;
+      for (i = 0; i < n; ++i) {
+        self->nfills++;
+        x = x_in[i];
+
+        HANDLE_OVERFLOW
+
+        self->total += w;
+        data[(int)((x-min)/binsize)] += w;
+      }
     }
     else {
-      data[find_bin_nonconstant(x, self->nbins, self->bins)] += w;
+      for (i = 0; i < n; ++i) {
+        self->nfills++;
+        x = x_in[i];
+
+        HANDLE_OVERFLOW
+
+        self->total += w;
+        data[find_bin_nonconstant(x, self->nbins, self->bins)] += w;
+      }
     }
   }
+  else {
+    double w;
+    if (bins == NULL) {
+      for (i = 0; i < n; ++i) {
+        self->nfills++;
+        x = x_in[i];
+        w = w_in[i];
+
+        HANDLE_OVERFLOW
+
+        self->total += w;
+        data[(int)((x-min)/binsize)] += w;
+      }
+    }
+    else {
+      for (i = 0; i < n; ++i) {
+        self->nfills++;
+        x = x_in[i];
+        w = w_in[i];
+
+        HANDLE_OVERFLOW
+
+        self->total += w;
+        data[find_bin_nonconstant(x, self->nbins, self->bins)] += w;
+      }
+    }
+  }
+#undef HANDLE_OVERFLOW
 }
 
 
